@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
+	"errors"
+	"io/fs"
 	"os"
+
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
 )
 
 func panicOn(err error) {
@@ -12,35 +15,22 @@ func panicOn(err error) {
 	}
 }
 
-// A mediawiki xml dump.
-type XMLDump struct {
-	XMLName  xml.Name `xml:"mediawiki"`
-	SiteInfo string   `xml:"siteinfo"`
-	Page     []Page   `xml:"page"`
-}
-
-// A page.
-type Page struct {
-	Title    string     `xml:"title"`
-	Revision []Revision `xml:"revision"`
-}
-
-// A page revision.
-//   Each revision is a standalone page version (not a diff).
-//   The last revision is the latest.
-type Revision struct {
-	Text      string `xml:"text"`
-	Timestamp string `xml:"timestamp"`
-}
-
 func main() {
+	sphinxRoot := "/home/will/out"
 	raw, err := os.ReadFile("/home/will/dump.xml")
 	panicOn(err)
 
-	var dump XMLDump
+	_, err = os.Stat(sphinxRoot)
+	if errors.Is(err, fs.ErrNotExist) {
+		err := os.MkdirAll(sphinxRoot, 0755)
+		panicOn(err)
+	} else {
+		panicOn(err)
+	}
+
+	var dump elements.XMLDump
 	xml.Unmarshal(raw, &dump)
-	for _, page := range dump.Page {
-		revision := page.Revision[len(page.Revision)-1]
-		fmt.Println(revision)
+	for _, page := range dump.Pages {
+		page.WriteRst(sphinxRoot)
 	}
 }
