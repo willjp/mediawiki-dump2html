@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 
+	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
 )
 
@@ -16,6 +17,7 @@ func panicOn(err error) {
 }
 
 func main() {
+	logger.SetLevel(logger.LvDebug)
 	sphinxRoot := "/home/will/out"
 	raw, err := os.ReadFile("/home/will/dump.xml")
 	panicOn(err)
