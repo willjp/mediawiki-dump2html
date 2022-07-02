@@ -99,7 +99,7 @@ func (page *Page) renderRst() (rendered string, err error) {
 	title := fmt.Sprint(
 		strings.Repeat("=", titleLen), "\n",
 		page.Title, "\n",
-		strings.Repeat("=", titleLen), "\n",
+		strings.Repeat("=", titleLen), "\n\n",
 	)
 
 	// cat $PAGE | pandoc -f mediawiki -t rst
@@ -111,7 +111,7 @@ func (page *Page) renderRst() (rendered string, err error) {
 	// replace '<br>' with something rst understands
 	render := strings.ReplaceAll(pandocRender, "<br>", ":raw-html:`<br/>`")
 
-	return fmt.Sprintf(directives, title, render), nil
+	return fmt.Sprint(directives, string(title), render), nil
 }
 
 // Uses pandoc to convert mediawiki to rst (without additional modifications)
