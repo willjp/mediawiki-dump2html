@@ -8,11 +8,20 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
 	"willpittman.net/x/logger"
 )
+
+var invalidPathCh *regexp.Regexp
+
+func init() {
+	var err error
+	invalidPathCh, err = regexp.Compile("[/]")
+	panicOn(err)
+}
 
 func panicOn(err error) {
 	if err != nil {
@@ -30,19 +39,22 @@ func (page *Page) LatestRevision() Revision {
 	return page.Revision[len(page.Revision)-1]
 }
 
-func (page *Page) WriteRst(sphinxRoot string) {
-	panicAndRmOn := func(file *os.File, err error) {
-		if err == nil {
-			return
+func (page *Page) RelPath() string {
+	fileName := fmt.Sprint(page.Title, ".rst")
+	sanitized := invalidPathCh.ReplaceAll([]byte(fileName), []byte("-"))
+	return string(sanitized)
+}
+
+func (page *Page) WriteRst(sphinxRoot string) error {
+	rmFileOn := func(file *os.File, err error) {
+		if err != nil {
+			logger.Errorf("Error encountered, removing: %s", file.Name())
+			os.Remove(file.Name())
 		}
-		logger.Errorf("Error encountered, removing: %s", file.Name())
-		os.Remove(file.Name())
-		panic(err)
 	}
 
 	var fileModified time.Time
-	fileName := fmt.Sprint(page.Title, ".rst")
-	rstPath := path.Join(sphinxRoot, fileName)
+	rstPath := path.Join(sphinxRoot, page.RelPath())
 	rstStat, err := os.Stat(rstPath)
 	switch {
 	case err == nil:
@@ -60,16 +72,25 @@ func (page *Page) WriteRst(sphinxRoot string) {
 
 		logger.Infof("Writing: %s\n", rstPath)
 		rendered, err := page.renderRst()
-		panicAndRmOn(file, err)
+		if err != nil {
+			rmFileOn(file, err)
+			return err
+		}
 		_, err = file.WriteString(rendered)
-		panicAndRmOn(file, err)
+		if err != nil {
+			rmFileOn(file, err)
+			return err
+		}
 	}
+	return nil
 }
 
+// Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
 func (page *Page) renderRst() (rendered string, err error) {
 	directives := `
 	.. role:: raw-html(raw)
 	  :format: html
+
 	`
 
 	// page title between '='s
@@ -80,8 +101,22 @@ func (page *Page) renderRst() (rendered string, err error) {
 		strings.Repeat("=", titleLen), "\n",
 	)
 
+	// cat $PAGE | pandoc -f mediawiki -t rst
+	pandocRender, err := page.pandocWikiToRst()
+	if err != nil {
+		return "", err
+	}
+
+	// replace '<br>' with something rst understands
+	render := strings.ReplaceAll(pandocRender, "<br>", ":raw-html:`<br/>`")
+
+	return fmt.Sprintf(directives, title, render), nil
+}
+
+// Uses pandoc to convert mediawiki to rst (without additional modifications)
+func (page *Page) pandocWikiToRst() (rendered string, err error) {
 	// raw=$(cat $PAGE | pandoc -f mediawiki -t rst)
-	// TODO: instead of chan, copy-on-write?
+	// TODO: instead of chan, mv-on-write?
 	cmd := exec.Command("pandoc", "-f", "mediawiki", "-t", "rst")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -124,9 +159,5 @@ func (page *Page) renderRst() (rendered string, err error) {
 		logger.Errorf("\n------\nSTDIN\n------\n%s\n------\nSTDERR\n------\n%s", page.LatestRevision().Text, errAll)
 		return "", err
 	}
-
-	// replace '<br>' with something rst understands
-	render := strings.ReplaceAll(string(outAll), "<br>", ":raw-html:`<br/>`")
-
-	return fmt.Sprintf(directives, title, render), nil
+	return string(outAll), nil
 }

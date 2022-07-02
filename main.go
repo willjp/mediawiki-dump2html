@@ -18,6 +18,7 @@ func panicOn(err error) {
 
 func main() {
 	logger.SetLevel(logger.LvDebug)
+	// configuration
 	sphinxRoot := "/home/will/out"
 	raw, err := os.ReadFile("/home/will/dump.xml")
 	panicOn(err)
