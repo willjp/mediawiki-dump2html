@@ -156,7 +156,7 @@ func (page *Page) pandocWikiToRst() (rendered string, err error) {
 		return "", err
 	}
 	if err = cmd.Wait(); err != nil {
-		logger.Errorf("\n------\nSTDIN\n------\n%s\n------\nSTDERR\n------\n%s", page.LatestRevision().Text, errAll)
+		logger.Debugf("\n------\nSTDIN\n------\n%s\n------\nSTDERR\n------\n%s", page.LatestRevision().Text, errAll)
 		return "", err
 	}
 	return string(outAll), nil
