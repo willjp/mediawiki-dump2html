@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
 )
 
@@ -87,11 +88,11 @@ func (page *Page) WriteRst(sphinxRoot string) error {
 
 // Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
 func (page *Page) renderRst() (rendered string, err error) {
-	directives := `
+	directives := dedent.Dedent(`
 	.. role:: raw-html(raw)
 	  :format: html
 
-	`
+	`)
 
 	// page title between '='s
 	titleLen := len([]rune(page.Title))
