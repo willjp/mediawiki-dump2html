@@ -1,6 +1,9 @@
 TODO
 ====
 
+* rendered rst has directive `.. _first_title`
+  I'm guessing this should be replaced with the actual page title.
+
 * `internal/elements/page.invalidPathCh`
    is pretty sparse, use a posix filepath char allowlist.
 
