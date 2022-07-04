@@ -9,9 +9,7 @@ import (
 var nonPosixChars *regexp.Regexp
 
 func init() {
-	var err error
-	nonPosixChars, err = regexp.Compile(fmt.Sprint("[^", `A-Za-z0-9\._\-`, os.PathSeparator, "]"))
-	PanicOn(err)
+	nonPosixChars = regexp.MustCompile(fmt.Sprint("[^", `A-Za-z0-9\._\-`, os.PathSeparator, "]"))
 }
 
 func SanitizePath(path []byte) []byte {

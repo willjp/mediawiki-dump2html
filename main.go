@@ -29,7 +29,8 @@ func main() {
 		utils.PanicOn(err)
 	}
 
-	renderer := renderers.RST{}
+	// renderer := renderers.RST{}
+	renderer := renderers.HTML{}
 	var dump elements.XMLDump
 	xml.Unmarshal(raw, &dump)
 	for _, page := range dump.Pages {
