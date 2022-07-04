@@ -5,11 +5,13 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"path"
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
 )
 
 func main() {
@@ -31,6 +33,7 @@ func main() {
 	var dump elements.XMLDump
 	xml.Unmarshal(raw, &dump)
 	for _, page := range dump.Pages {
-		renderer.Write(&page, sphinxRoot)
+		outPath := path.Join(sphinxRoot, renderer.Filename(&page))
+		writers.Dump(&renderer, &page, outPath)
 	}
 }

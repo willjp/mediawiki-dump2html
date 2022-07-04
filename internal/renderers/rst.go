@@ -1,15 +1,10 @@
 package renderers
 
 import (
-	"errors"
 	"fmt"
 	"io"
-	"io/fs"
-	"os"
 	"os/exec"
-	"path"
 	"strings"
-	"time"
 
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
@@ -20,49 +15,9 @@ import (
 // Has methods for conversion, and keeps state used during conversion
 type RST struct{}
 
-func (rst *RST) RelPath(page *elements.Page) string {
+func (rst *RST) Filename(page *elements.Page) string {
 	fileName := fmt.Sprint(page.Title, ".rst")
 	return string(utils.SanitizePath([]byte(fileName)))
-}
-
-func (rst *RST) Write(page *elements.Page, sphinxRoot string) error {
-	rmFileOn := func(file *os.File, err error) {
-		if err != nil {
-			logger.Errorf("Error encountered, removing: %s", file.Name())
-			os.Remove(file.Name())
-		}
-	}
-
-	var fileModified time.Time
-	rstPath := path.Join(sphinxRoot, rst.RelPath(page))
-	rstStat, err := os.Stat(rstPath)
-	switch {
-	case err == nil:
-		fileModified = rstStat.ModTime()
-	case errors.Is(err, fs.ErrNotExist):
-		fileModified = time.Unix(0, 0)
-	default:
-		panic(err)
-	}
-
-	revision := page.LatestRevision()
-	if revision.Timestamp.After(fileModified) {
-		file, err := os.Create(rstPath)
-		utils.PanicOn(err)
-
-		logger.Infof("Writing: %s\n", rstPath)
-		rendered, err := rst.Render(page)
-		if err != nil {
-			rmFileOn(file, err)
-			return err
-		}
-		_, err = file.WriteString(rendered)
-		if err != nil {
-			rmFileOn(file, err)
-			return err
-		}
-	}
-	return nil
 }
 
 // Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
