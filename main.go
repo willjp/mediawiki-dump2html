@@ -8,6 +8,7 @@ import (
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 func panicOn(err error) {
@@ -21,14 +22,14 @@ func main() {
 	// configuration
 	sphinxRoot := "/home/will/out"
 	raw, err := os.ReadFile("/home/will/dump.xml")
-	panicOn(err)
+	utils.PanicOn(err)
 
 	_, err = os.Stat(sphinxRoot)
 	if errors.Is(err, fs.ErrNotExist) {
 		err := os.MkdirAll(sphinxRoot, 0755)
-		panicOn(err)
+		utils.PanicOn(err)
 	} else {
-		panicOn(err)
+		utils.PanicOn(err)
 	}
 
 	var dump elements.XMLDump
