@@ -33,7 +33,8 @@ func (rst *RST) Render(page *elements.Page) (rendered string, err error) {
 		strings.Repeat("=", titleLen), "\n\n",
 	)
 
-	pandocRender, err := utils.PandocConvert(page, "mediawiki", "rst")
+	opts := utils.PandocOptions{From: "mediawiki", To: "rst"}
+	pandocRender, err := utils.PandocConvert(page, &opts)
 	if err != nil {
 		return "", err
 	}

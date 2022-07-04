@@ -22,7 +22,8 @@ func (html *HTML) Render(page *elements.Page) (rendered string, err error) {
 		toHtmlId(page.Title),
 		page.Title)
 
-	renderRaw, err := utils.PandocConvert(page, "mediawiki", "html")
+	opts := utils.PandocOptions{From: "mediawiki", To: "html"}
+	renderRaw, err := utils.PandocConvert(page, &opts)
 	if err != nil {
 		return "", err
 	}

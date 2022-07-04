@@ -8,10 +8,20 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
 )
 
-func PandocConvert(page *elements.Page, from string, to string) (string, error) {
+type PandocOptions struct {
+	From       string
+	To         string
+	Standalone bool
+}
+
+func PandocConvert(page *elements.Page, opts *PandocOptions) (string, error) {
 	// raw=$(cat $PAGE | pandoc -f mediawiki -t rst)
 	// TODO: instead of chan, mv-on-write?
-	cmd := exec.Command("pandoc", "-f", from, "-t", to)
+	args := []string{"-f", opts.From, "-t", opts.To}
+	if opts.Standalone == true {
+		args = append(args, "--standalone")
+	}
+	cmd := exec.Command("pandoc", args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return "", err

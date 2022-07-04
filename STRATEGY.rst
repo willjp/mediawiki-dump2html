@@ -23,6 +23,13 @@ Why bother with an intermediate ReStructuredText, and another system if we just 
 7. Write static-html files
 
 
+.. warning::
+   pandoc actually supports syntax-highlighting with it's `--standalone` flag.
+   `pandoc --print-highlight-style pygments` will dump a json fed to skylight
+   `pandoc --list-highlight-styles` will show available colourschemes.
+
+   I don't think you can dump a CSS file, so maybe render a page (with `--standalone`), and extract/point to the defined stylesheets?
+
 .. note::
     Real HTML parsing would be preferable to regex, but it should do for now.
     We might be able to avoid the posix-rename if we esacape URLs, and filepaths -- which would make this faster, but dirtier to work with.
