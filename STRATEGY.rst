@@ -2,8 +2,34 @@
 Parsers
 =======
 
-Winning Solution
-----------------
+
+Winning Solution-2
+------------------
+
+Why bother with an intermediate ReStructuredText, and another system if we just can do it here.
+
+1. Iterate over latest pages from XML dump
+
+2. Create a lookup table of all to-be-renamed pages, from their title, to their renamed posix-filepath
+
+3. Use pandoc to convert to HTML
+
+4. Increment headers, add page-title as h1
+
+5. Replace targets in links that have been renamed for posix
+
+6. Index headers in json blob (so we can search later)
+
+7. Write static-html files
+
+
+.. note::
+    Real HTML parsing would be preferable to regex, but it should do for now.
+    We might be able to avoid the posix-rename if we esacape URLs, and filepaths -- which would make this faster, but dirtier to work with.
+
+
+Winning Solution-1
+------------------
 
 Steps
 .....
