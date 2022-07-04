@@ -8,14 +8,9 @@ import (
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
-
-func panicOn(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
 
 func main() {
 	logger.SetLevel(logger.LvDebug)
@@ -32,9 +27,10 @@ func main() {
 		utils.PanicOn(err)
 	}
 
+	renderer := renderers.RST{}
 	var dump elements.XMLDump
 	xml.Unmarshal(raw, &dump)
 	for _, page := range dump.Pages {
-		page.WriteRst(sphinxRoot)
+		renderer.Write(&page, sphinxRoot)
 	}
 }
