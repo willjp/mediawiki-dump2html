@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"path"
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
@@ -15,26 +14,23 @@ import (
 )
 
 func main() {
-	logger.SetLevel(logger.LvDebug)
 	// configuration
-	sphinxRoot := "/home/will/out"
+	logger.SetLevel(logger.LvDebug)
+	outDir := "/home/will/out"
 	raw, err := os.ReadFile("/home/will/dump.xml")
 	utils.PanicOn(err)
 
-	_, err = os.Stat(sphinxRoot)
+	_, err = os.Stat(outDir)
 	if errors.Is(err, fs.ErrNotExist) {
-		err := os.MkdirAll(sphinxRoot, 0755)
+		err := os.MkdirAll(outDir, 0755)
 		utils.PanicOn(err)
 	} else {
 		utils.PanicOn(err)
 	}
 
-	// renderer := renderers.RST{}
-	renderer := renderers.HTML{}
 	var dump elements.XMLDump
 	xml.Unmarshal(raw, &dump)
-	for _, page := range dump.Pages {
-		outPath := path.Join(sphinxRoot, renderer.Filename(&page))
-		writers.Dump(&renderer, &page, outPath)
-	}
+
+	renderer := renderers.HTML{}
+	writers.DumpAll(&renderer, &dump, outDir)
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"path"
 	"time"
 
 	"willpittman.net/x/logger"
@@ -12,14 +13,17 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
-func Dump(renderer renderers.Renderer, page *elements.Page, outPath string) error {
-	rmFileOn := func(file *os.File, err error) {
-		if err != nil {
-			logger.Errorf("Error encountered, removing: %s", file.Name())
-			os.Remove(file.Name())
-		}
-	}
+func DumpAll(renderer renderers.Renderer, dump *elements.XMLDump, outDir string) error {
+	renderer.Setup(dump, outDir)
 
+	for _, page := range dump.Pages {
+		outPath := path.Join(outDir, renderer.Filename(&page))
+		Dump(renderer, &page, outPath)
+	}
+	return nil
+}
+
+func Dump(renderer renderers.Renderer, page *elements.Page, outPath string) error {
 	var fileModified time.Time
 	stat, err := os.Stat(outPath)
 	switch {
@@ -33,18 +37,19 @@ func Dump(renderer renderers.Renderer, page *elements.Page, outPath string) erro
 
 	revision := page.LatestRevision()
 	if revision.Timestamp.After(fileModified) {
-		file, err := os.Create(outPath)
-		utils.PanicOn(err)
-
 		logger.Infof("Writing: %s\n", outPath)
 		rendered, err := renderer.Render(page)
 		if err != nil {
-			rmFileOn(file, err)
 			return err
 		}
+
+		file, err := os.Create(outPath)
+		defer file.Close()
+		utils.PanicOn(err)
+
 		_, err = file.WriteString(rendered)
 		if err != nil {
-			rmFileOn(file, err)
+			utils.RmFileOn(file, err)
 			return err
 		}
 	}

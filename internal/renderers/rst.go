@@ -17,6 +17,11 @@ func (rst *RST) Filename(page *elements.Page) string {
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 
+// Hook that runs before dumping all pages. Not necessarily a pure function.
+func (html *RST) Setup(dump *elements.XMLDump, outDir string) error {
+	return nil
+}
+
 // Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
 func (rst *RST) Render(page *elements.Page) (rendered string, err error) {
 	directives := dedent.Dedent(`

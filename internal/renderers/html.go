@@ -2,16 +2,20 @@ package renderers
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 var headerRx *regexp.Regexp
 var idInvalidRx *regexp.Regexp
+var stylesheetName string
 
 func init() {
 	headerRx = regexp.MustCompile(fmt.Sprint(
@@ -20,6 +24,7 @@ func init() {
 		`(?P<tail>[^>]*>)`,       // '>'
 	))
 	idInvalidRx = regexp.MustCompile(`[^a-z0-9\-]+`)
+	stylesheetName = "style.css"
 }
 
 type HTML struct{}
@@ -29,13 +34,20 @@ func (html *HTML) Filename(page *elements.Page) string {
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 
-func (html *HTML) Render(page *elements.Page) (rendered string, err error) {
-	title := fmt.Sprintf("<h1 id=\"%s\">%s</h1>\n",
-		toHtmlId(page.Title),
-		page.Title)
+// Hook that runs before dumping all pages. Not necessarily a pure function.
+func (html *HTML) Setup(dump *elements.XMLDump, outDir string) error {
+	return renderStylesheet(dump, outDir)
+}
 
-	utils.PandocExtractCss(page)
-	opts := utils.PandocOptions{From: "mediawiki", To: "html", Standalone: true}
+// Renders one page to HTML, returns as string.
+func (html *HTML) Render(page *elements.Page) (rendered string, err error) {
+	title := fmt.Sprintf(
+		"<h1 id=\"%s\">%s</h1>\n",
+		toHtmlId(page.Title),
+		page.Title,
+	)
+
+	opts := utils.PandocOptions{From: "mediawiki", To: "html"}
 	renderRaw, err := utils.PandocConvert(page, &opts)
 	if err != nil {
 		return "", err
@@ -61,4 +73,28 @@ func incrHeaders(render string) string {
 func toHtmlId(value string) string {
 	downcased := strings.ToLower(value)
 	return idInvalidRx.ReplaceAllString(downcased, "_")
+}
+
+// Writes CSS file that can be sourced in dumped HTML files.
+func renderStylesheet(dump *elements.XMLDump, outDir string) error {
+	if len(dump.Pages) < 1 {
+		return nil
+	}
+
+	css, err := utils.PandocExtractCss(&dump.Pages[0])
+	if err != nil {
+		return err
+	}
+	cssPath := path.Join(outDir, stylesheetName)
+	file, err := os.Create(cssPath)
+	defer file.Close()
+	utils.PanicOn(err)
+
+	logger.Infof("Writing: %s\n", cssPath)
+	_, err = file.WriteString(css)
+	if err != nil {
+		utils.RmFileOn(file, err)
+		return err
+	}
+	return nil
 }

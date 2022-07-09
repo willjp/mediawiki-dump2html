@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 	"io"
 	"os/exec"
-	"runtime"
 
+	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/html"
@@ -83,7 +83,6 @@ func PandocExtractCss(page *elements.Page) (rendered string, err error) {
 		return "", err
 	}
 	xml.Unmarshal([]byte(raw), &htmlNode)
-	css := htmlNode.Head.Style
-	runtime.Breakpoint()
+	css := dedent.Dedent(htmlNode.Head.Style)
 	return css, nil
 }
