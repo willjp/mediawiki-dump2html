@@ -9,10 +9,6 @@ TODO
     score search results by header priority.
     we could even include a text-snippet if we wanted.
 
-* `internal/renderers` should not own `Write()`.
-   Generate the relpath, correct the links,
-   but writing in the renderer would just duplicate work.
-
 * rendered rst has directive `.. _first_title`
   I'm guessing this should be replaced with the actual page title.
 
