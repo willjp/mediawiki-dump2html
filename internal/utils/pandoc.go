@@ -7,8 +7,8 @@ import (
 
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/html"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/html"
 )
 
 // Struct of pandoc CLI options.
