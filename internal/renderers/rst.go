@@ -5,25 +5,25 @@ import (
 	"strings"
 
 	"github.com/lithammer/dedent"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 // Has methods for conversion, and keeps state used during conversion
 type RST struct{}
 
-func (rst *RST) Filename(page *elements.Page) string {
+func (rst *RST) Filename(page *mwdump.Page) string {
 	fileName := fmt.Sprint(page.Title, ".rst")
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
-func (html *RST) Setup(dump *elements.XMLDump, outDir string) error {
+func (html *RST) Setup(dump *mwdump.XMLDump, outDir string) error {
 	return nil
 }
 
 // Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
-func (rst *RST) Render(page *elements.Page) (rendered string, err error) {
+func (rst *RST) Render(page *mwdump.Page) (rendered string, err error) {
 	directives := dedent.Dedent(`
 	.. role:: raw-html(raw)
 	  :format: html

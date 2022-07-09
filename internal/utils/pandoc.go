@@ -7,7 +7,7 @@ import (
 
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/html"
 )
 
@@ -19,7 +19,7 @@ type PandocOptions struct {
 }
 
 // Wraper around a pandoc conversion.
-func PandocConvert(page *elements.Page, opts *PandocOptions) (string, error) {
+func PandocConvert(page *mwdump.Page, opts *PandocOptions) (string, error) {
 	// raw=$(cat $PAGE | pandoc -f mediawiki -t rst)
 	// TODO: instead of chan, mv-on-write?
 	args := []string{"-f", opts.From, "-t", opts.To}
@@ -75,7 +75,7 @@ func PandocConvert(page *elements.Page, opts *PandocOptions) (string, error) {
 //
 // When pandoc is called using the `--standalone` param, it renders CSS into each page.
 // This extracts that CSS, so that you could dump it to a file and reference it within each page.
-func PandocExtractCss(page *elements.Page) (rendered string, err error) {
+func PandocExtractCss(page *mwdump.Page) (rendered string, err error) {
 	var htmlNode html.Html
 	opts := PandocOptions{From: "mediawiki", To: "html", Standalone: true}
 	raw, err := PandocConvert(page, &opts)

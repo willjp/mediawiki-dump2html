@@ -1,4 +1,4 @@
-package elements
+package mwdump
 
 // Represents a mediawiki <page> element
 type Page struct {

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"willpittman.net/x/logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
@@ -29,18 +29,18 @@ func init() {
 
 type HTML struct{}
 
-func (html *HTML) Filename(page *elements.Page) string {
+func (html *HTML) Filename(page *mwdump.Page) string {
 	fileName := fmt.Sprint(page.Title, ".html")
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
-func (html *HTML) Setup(dump *elements.XMLDump, outDir string) error {
+func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) error {
 	return renderStylesheet(dump, outDir)
 }
 
 // Renders one page to HTML, returns as string.
-func (html *HTML) Render(page *elements.Page) (rendered string, err error) {
+func (html *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 	title := fmt.Sprintf(
 		"<h1 id=\"%s\">%s</h1>\n",
 		toHtmlId(page.Title),
@@ -76,7 +76,7 @@ func toHtmlId(value string) string {
 }
 
 // Writes CSS file that can be sourced in dumped HTML files.
-func renderStylesheet(dump *elements.XMLDump, outDir string) error {
+func renderStylesheet(dump *mwdump.XMLDump, outDir string) error {
 	if len(dump.Pages) < 1 {
 		return nil
 	}

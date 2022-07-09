@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"willpittman.net/x/logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
@@ -28,7 +28,7 @@ func main() {
 		utils.PanicOn(err)
 	}
 
-	var dump elements.XMLDump
+	var dump mwdump.XMLDump
 	xml.Unmarshal(raw, &dump)
 
 	renderer := renderers.HTML{}

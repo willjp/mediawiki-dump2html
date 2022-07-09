@@ -1,4 +1,4 @@
-package elements
+package mwdump
 
 import "encoding/xml"
 

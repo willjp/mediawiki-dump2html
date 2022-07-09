@@ -1,9 +1,9 @@
 package renderers
 
-import "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+import "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 
 type Renderer interface {
-	Filename(page *elements.Page) string
-	Setup(dump *elements.XMLDump, outDir string) error
-	Render(page *elements.Page) (rendered string, err error)
+	Filename(page *mwdump.Page) string
+	Setup(dump *mwdump.XMLDump, outDir string) error
+	Render(page *mwdump.Page) (rendered string, err error)
 }
