@@ -10,6 +10,18 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
+var headerRx *regexp.Regexp
+var idInvalidRx *regexp.Regexp
+
+func init() {
+	headerRx = regexp.MustCompile(fmt.Sprint(
+		`(?P<head><[/]?[ \t]*h)`, // '<h'  '</h'
+		`(?P<lv>[1-6])`,          // '1'
+		`(?P<tail>[^>]*>)`,       // '>'
+	))
+	idInvalidRx = regexp.MustCompile(`[^a-z0-9\-]+`)
+}
+
 type HTML struct{}
 
 func (html *HTML) Filename(page *elements.Page) string {
@@ -22,7 +34,8 @@ func (html *HTML) Render(page *elements.Page) (rendered string, err error) {
 		toHtmlId(page.Title),
 		page.Title)
 
-	opts := utils.PandocOptions{From: "mediawiki", To: "html"}
+	utils.PandocExtractCss(page)
+	opts := utils.PandocOptions{From: "mediawiki", To: "html", Standalone: true}
 	renderRaw, err := utils.PandocConvert(page, &opts)
 	if err != nil {
 		return "", err
@@ -30,18 +43,6 @@ func (html *HTML) Render(page *elements.Page) (rendered string, err error) {
 	render := incrHeaders(renderRaw)
 
 	return fmt.Sprint(title, render), nil
-}
-
-var headerRx *regexp.Regexp
-var idInvalidRx *regexp.Regexp
-
-func init() {
-	headerRx = regexp.MustCompile(fmt.Sprint(
-		`(?P<head><[/]?[ \t]*h)`, // '<h'  '</h'
-		`(?P<lv>[1-6])`,          // '1'
-		`(?P<tail>[^>]*>)`,       // '>'
-	))
-	idInvalidRx = regexp.MustCompile(`[^a-z0-9\-]+`)
 }
 
 // Increments the header-level of every HTML header in 'render'.

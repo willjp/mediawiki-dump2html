@@ -1,19 +1,24 @@
 package utils
 
 import (
+	"encoding/xml"
 	"io"
 	"os/exec"
+	"runtime"
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/html"
 )
 
+// Struct of pandoc CLI options.
 type PandocOptions struct {
 	From       string
 	To         string
 	Standalone bool
 }
 
+// Wraper around a pandoc conversion.
 func PandocConvert(page *elements.Page, opts *PandocOptions) (string, error) {
 	// raw=$(cat $PAGE | pandoc -f mediawiki -t rst)
 	// TODO: instead of chan, mv-on-write?
@@ -64,4 +69,21 @@ func PandocConvert(page *elements.Page, opts *PandocOptions) (string, error) {
 		return "", err
 	}
 	return string(outAll), nil
+}
+
+// Extracts pandoc's generated CSS from a page render.
+//
+// When pandoc is called using the `--standalone` param, it renders CSS into each page.
+// This extracts that CSS, so that you could dump it to a file and reference it within each page.
+func PandocExtractCss(page *elements.Page) (rendered string, err error) {
+	var htmlNode html.Html
+	opts := PandocOptions{From: "mediawiki", To: "html", Standalone: true}
+	raw, err := PandocConvert(page, &opts)
+	if err != nil {
+		return "", err
+	}
+	xml.Unmarshal([]byte(raw), &htmlNode)
+	css := htmlNode.Head.Style
+	runtime.Breakpoint()
+	return css, nil
 }
