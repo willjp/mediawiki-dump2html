@@ -12,3 +12,9 @@ func RmFileOn(file *os.File, err error) {
 		os.Remove(file.Name())
 	}
 }
+
+func PanicOn(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
