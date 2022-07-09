@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
@@ -41,12 +42,24 @@ func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) error {
 
 // Renders one page to HTML, returns as string.
 func (html *HTML) Render(page *mwdump.Page) (rendered string, err error) {
+	// html header
+	header := dedent.Dedent(fmt.Sprintf(`
+		<html>
+		<head>
+		  <title>%s</title>
+		  <link rel="stylesheet" href="%s" />
+		</head>
+		`, page.Title, stylesheetName,
+	))
+
+	// h1
 	title := fmt.Sprintf(
 		"<h1 id=\"%s\">%s</h1>\n",
 		toHtmlId(page.Title),
 		page.Title,
 	)
 
+	// rendered wiki
 	opts := utils.PandocOptions{From: "mediawiki", To: "html"}
 	renderRaw, err := utils.PandocConvert(page, &opts)
 	if err != nil {
@@ -54,7 +67,9 @@ func (html *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 	}
 	render := incrHeaders(renderRaw)
 
-	return fmt.Sprint(title, render), nil
+	// end of html
+	footer := `</html>`
+	return fmt.Sprint(header, title, render, footer), nil
 }
 
 // Increments the header-level of every HTML header in 'render'.
