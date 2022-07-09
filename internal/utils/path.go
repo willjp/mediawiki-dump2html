@@ -13,5 +13,5 @@ func init() {
 }
 
 func SanitizePath(path []byte) []byte {
-	return nonPosixChars.ReplaceAll(path, []byte("-"))
+	return nonPosixChars.ReplaceAll(path, []byte("_"))
 }
