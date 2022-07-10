@@ -28,7 +28,7 @@ type HTML struct{}
 func (html *HTML) Filename(pageTitle string) string {
 	// downcase everything - mediawiki has some links that are not case sensitive
 	fileName := strings.ToLower(fmt.Sprint(pageTitle, ".html"))
-	return string(utils.SanitizePath([]byte(fileName)))
+	return string(utils.SanitizeFilename([]byte(fileName)))
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.

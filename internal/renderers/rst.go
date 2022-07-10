@@ -14,7 +14,7 @@ type RST struct{}
 
 func (rst *RST) Filename(pageTitle string) string {
 	fileName := fmt.Sprint(pageTitle, ".rst")
-	return string(utils.SanitizePath([]byte(fileName)))
+	return string(utils.SanitizeFilename([]byte(fileName)))
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
