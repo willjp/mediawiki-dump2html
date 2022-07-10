@@ -18,3 +18,9 @@ func PanicOn(err error) {
 		panic(err)
 	}
 }
+
+func LogWarnOn(err error) {
+	if err != nil {
+		logger.Warnf("Ignored Error: %s", err)
+	}
+}
