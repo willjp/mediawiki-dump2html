@@ -17,7 +17,7 @@ func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) e
 	renderer.Setup(dump, outDir)
 
 	for _, page := range dump.Pages {
-		outPath := path.Join(outDir, renderer.Filename(&page))
+		outPath := path.Join(outDir, renderer.Filename(page.Title))
 		Dump(renderer, &page, outPath)
 	}
 	return nil

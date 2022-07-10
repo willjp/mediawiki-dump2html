@@ -30,8 +30,8 @@ func init() {
 
 type HTML struct{}
 
-func (html *HTML) Filename(page *mwdump.Page) string {
-	fileName := fmt.Sprint(page.Title, ".html")
+func (html *HTML) Filename(pageTitle string) string {
+	fileName := fmt.Sprint(pageTitle, ".html")
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 

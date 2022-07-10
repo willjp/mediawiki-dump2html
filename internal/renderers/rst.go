@@ -12,8 +12,8 @@ import (
 // Has methods for conversion, and keeps state used during conversion
 type RST struct{}
 
-func (rst *RST) Filename(page *mwdump.Page) string {
-	fileName := fmt.Sprint(page.Title, ".rst")
+func (rst *RST) Filename(pageTitle string) string {
+	fileName := fmt.Sprint(pageTitle, ".rst")
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 
