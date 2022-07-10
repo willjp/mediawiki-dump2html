@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -16,16 +15,10 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
-var headerRx *regexp.Regexp
 var idInvalidRx *regexp.Regexp
 var stylesheetName string
 
 func init() {
-	headerRx = regexp.MustCompile(fmt.Sprint(
-		`(?P<head><[/]?[ \t]*h)`, // '<h'  '</h'
-		`(?P<lv>[1-6])`,          // '1'
-		`(?P<tail>[^>]*>)`,       // '>'
-	))
 	idInvalidRx = regexp.MustCompile(`[^a-z0-9\-]+`)
 	stylesheetName = "style.css"
 }
@@ -58,7 +51,7 @@ func (this *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 		utils.LogWarnOn(err)
 		return "", err
 	}
-	node, _ = this.recursiveAdjustHtml(node, page)
+	node, _ = this.adjust(node, page)
 	var render strings.Builder
 	html.Render(&render, node)
 
@@ -66,7 +59,7 @@ func (this *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 }
 
 // Rebuilds HTML Tree, adjusted for serving over static html
-func (this *HTML) recursiveAdjustHtml(node *html.Node, page *mwdump.Page) (*html.Node, error) {
+func (this *HTML) adjust(node *html.Node, page *mwdump.Page) (*html.Node, error) {
 	var err error
 
 	// process
@@ -80,7 +73,7 @@ func (this *HTML) recursiveAdjustHtml(node *html.Node, page *mwdump.Page) (*html
 	// recurse through children
 	var children []*html.Node
 	for child := node.FirstChild; child != nil; child = child.NextSibling {
-		child, err = this.recursiveAdjustHtml(child, page)
+		child, err = this.adjust(child, page)
 		if err != nil {
 			return child, err
 		}
@@ -223,17 +216,6 @@ func (this *HTML) adjustAnchorNode(node *html.Node) (finalNode *html.Node, err e
 		Namespace:   node.Namespace,
 		Attr:        attrs,
 	}, nil
-}
-
-// Increments the header-level of every HTML header in 'render'.
-//   (ex. <h1>foo</h1> --> <h2>foo</h2>)
-func incrHeaders(render string) string {
-	return headerRx.ReplaceAllStringFunc(render, func(match string) string {
-		submatches := headerRx.FindStringSubmatch(match)
-		lv, err := strconv.Atoi(submatches[2])
-		utils.PanicOn(err)
-		return fmt.Sprint(submatches[1], lv+1, submatches[3])
-	})
 }
 
 // Downcases, and sanitizes characters in a HTML header to assign to html ID.
