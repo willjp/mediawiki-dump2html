@@ -33,7 +33,8 @@ func init() {
 type HTML struct{}
 
 func (html *HTML) Filename(pageTitle string) string {
-	fileName := fmt.Sprint(pageTitle, ".html")
+	// downcase everything - mediawiki has some links that are not case sensitive
+	fileName := strings.ToLower(fmt.Sprint(pageTitle, ".html"))
 	return string(utils.SanitizePath([]byte(fileName)))
 }
 
