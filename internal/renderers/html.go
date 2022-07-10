@@ -2,6 +2,7 @@ package renderers
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path"
 	"regexp"
@@ -9,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/lithammer/dedent"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
@@ -41,7 +44,7 @@ func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) error {
 }
 
 // Renders one page to HTML, returns as string.
-func (html *HTML) Render(page *mwdump.Page) (rendered string, err error) {
+func (this *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 	// html header
 	header := dedent.Dedent(fmt.Sprintf(`
 		<html>
@@ -65,11 +68,108 @@ func (html *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 	if err != nil {
 		return "", err
 	}
-	render := incrHeaders(renderRaw)
+
+	// parses/modifies HTML (corrects links, increments header-levels, ...)
+	node, err := html.Parse(strings.NewReader(renderRaw))
+	if err != nil {
+		utils.LogWarnOn(err)
+		return "", err
+	}
+	finalBody, _ := this.adjustHtmlNode(node)
+
+	var render strings.Builder
+	html.Render(&render, finalBody)
 
 	// end of html
 	footer := `</html>`
-	return fmt.Sprint(header, title, render, footer), nil
+	return fmt.Sprint(header, title, render.String(), footer), nil
+	return "", nil
+}
+
+func (this *HTML) adjustHtmlNode(node *html.Node) (finalNode *html.Node, err error) {
+	// process
+	newNode, err := this.adjustAnchorLinks(node)
+	if err != nil {
+		return nil, err
+	}
+
+	// mutate children
+	var children []*html.Node
+	for child := node.FirstChild; child != nil; child = child.NextSibling {
+		newChild, err := this.adjustHtmlNode(child)
+		if err != nil {
+			return nil, err
+		}
+		children = append(children, newChild)
+	}
+
+	// update this node so points to updated children
+	if len(children) > 0 {
+		newNode.FirstChild = children[0]
+		newNode.LastChild = children[len(children)-1]
+	}
+
+	// now update children so they point to correct sibling
+	for index, child := range children {
+		if 0 < index && index < len(children)-1 {
+			child.PrevSibling = children[index-1]
+			child.NextSibling = children[index+1]
+		}
+	}
+
+	return newNode, nil
+}
+
+// Increments the header-level of every HTML header in 'render'.
+// (ex. <h1>foo</h1> --> <h2>foo</h2>)
+func (this *HTML) incrementHeaderLvl(node *html.Node) (finalNode *html.Node, err error) {
+	return node, nil
+}
+
+// Modifes `<a href="">` elements, so they point to files we have written to disk.
+//  - files on disk use POSIX compatible characters in filename
+//  - since serving statically without webserver, appends '.html' to filename
+func (this *HTML) adjustAnchorLinks(node *html.Node) (finalNode *html.Node, err error) {
+	if node.Type != html.ElementNode {
+		return node, nil
+	}
+	if node.DataAtom != atom.A {
+		return node, nil
+	}
+
+	var attrs []html.Attribute
+	for _, attr := range node.Attr {
+		if attr.Key != "href" {
+			attrs = append(attrs, attr)
+			continue
+		}
+
+		// ignore error, since we are correcting invalid urls
+		target, err := url.Parse(attr.Val)
+		if err != nil || !target.IsAbs() {
+			newAttr := html.Attribute{
+				Namespace: attr.Namespace,
+				Key:       attr.Key,
+				Val:       this.Filename(attr.Val),
+			}
+			attrs = append(attrs, newAttr)
+		} else {
+			attrs = append(attrs, attr)
+		}
+	}
+
+	return &html.Node{
+		Parent:      node.Parent,
+		FirstChild:  node.FirstChild,
+		LastChild:   node.LastChild,
+		PrevSibling: node.PrevSibling,
+		NextSibling: node.NextSibling,
+		Type:        node.Type,
+		DataAtom:    node.DataAtom,
+		Data:        node.Data,
+		Namespace:   node.Namespace,
+		Attr:        attrs,
+	}, nil
 }
 
 // Increments the header-level of every HTML header in 'render'.
