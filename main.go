@@ -8,7 +8,7 @@ import (
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers"
+	renderers "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
 )
