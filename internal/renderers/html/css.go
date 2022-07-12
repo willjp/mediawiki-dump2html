@@ -2,7 +2,6 @@ package renderers
 
 import (
 	"encoding/xml"
-	"io"
 	"os"
 	"path"
 	"strings"
@@ -21,8 +20,8 @@ func RenderStylesheet(dump *mwdump.XMLDump, outDir string) error {
 		return nil
 	}
 
-	extractor := newCssExtractor(&dump.Pages[0])
-	css, err := extractor.Execute()
+	cmd := PandocCommand()
+	css, err := ExtractCss(cmd, &dump.Pages[0])
 	if err != nil {
 		return err
 	}
@@ -41,40 +40,29 @@ func RenderStylesheet(dump *mwdump.XMLDump, outDir string) error {
 	return nil
 }
 
-// Extracts pandoc's generated CSS from a page render.
-//
-// When pandoc is called using the `--standalone` param, it renders CSS into each page.
-// This extracts that CSS, so that you could dump it to a file and reference it within each page.
-type cssExtractor struct {
-	cmd   *utils.PandocCmd
-	stdin io.Reader
-}
-
-func newCssExtractor(page *mwdump.Page) *cssExtractor {
+// Builds pandoc command to render HTML with CSS.
+func PandocCommand() *utils.PandocCmd {
 	opts := utils.PandocOpts{
 		From:       "mediawiki",
 		To:         "html",
 		Standalone: true,
 	}
 	cmd := opts.Command()
-	return &cssExtractor{cmd: cmd, stdin: strings.NewReader(page.LatestRevision().Text)}
+	return cmd
 }
 
-func (this *cssExtractor) Execute() (string, error) {
-	raw, err := this.cmd.Execute(this.stdin)
+// Executes pandoc command, and extracts CSS
+func ExtractCss(cmd *utils.PandocCmd, src *mwdump.Page) (string, error) {
+	html, err := cmd.Execute(strings.NewReader(src.LatestRevision().Text))
 	if err != nil {
 		return "", err
 	}
-	css, err := this.extract(raw)
-	if err != nil {
-		return "", err
-	}
-	return css, nil
-}
 
-func (this *cssExtractor) extract(raw string) (string, error) {
 	var htmlNode htmlElement.Html
-	xml.Unmarshal([]byte(raw), &htmlNode)
+	xml.Unmarshal([]byte(html), &htmlNode)
 	css := dedent.Dedent(htmlNode.Head.Style)
+	if err != nil {
+		return "", err
+	}
 	return css, nil
 }

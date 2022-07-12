@@ -8,9 +8,6 @@ Cleanups
 * `writers.Dump()`
    simplify error-handling using mv-on-write, this is more complicated than it needs to be.
 
-* `renderers/html/css.go`
-   this is still an untestable hack. maybe we could use make this a renderer unto itself and use `writers/`?
-
 
 Bugfixes
 --------
