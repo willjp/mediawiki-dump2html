@@ -18,13 +18,13 @@ type Pandoc struct {
 
 // Executes a pandoc command.
 func (this *Pandoc) Execute() (string, error) {
-	args := this.args()
-	cmd := cmd{Cmd: exec.Command("pandoc", args...)}
-	return this.execute(&cmd)
+	args := this.Args()
+	cmd := Cmd{Cmd: exec.Command("pandoc", args...)}
+	return this.ExecuteCmd(&cmd)
 }
 
 // Commandline Arguments for Pandoc
-func (this *Pandoc) args() []string {
+func (this *Pandoc) Args() []string {
 	args := []string{"-f", this.From, "-t", this.To}
 	if this.Standalone == true {
 		args = append(args, "--standalone")
@@ -32,8 +32,8 @@ func (this *Pandoc) args() []string {
 	return args
 }
 
-// Invokes pandoc on CLI (testable seam).
-func (this *Pandoc) execute(c *cmd) (string, error) {
+// Low-Level method to invoke pandoc on CLI (testable seam).
+func (this *Pandoc) ExecuteCmd(c *Cmd) (string, error) {
 	stdout, err := c.StdoutPipe()
 	if err != nil {
 		return "", err
@@ -84,7 +84,7 @@ func (this *Pandoc) execute(c *cmd) (string, error) {
 	return string(outAll), nil
 }
 
-// Test Seam that wraps exec.Cmd
-type cmd struct {
+// Low-Level test Seam that wraps exec.Cmd
+type Cmd struct {
 	*exec.Cmd
 }
