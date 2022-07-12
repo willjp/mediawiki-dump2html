@@ -1,6 +1,7 @@
 package renderers
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/url"
 	"os"
@@ -8,11 +9,14 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/lithammer/dedent"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+
+	htmlElement "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/html"
 )
 
 var idInvalidRx *regexp.Regexp
@@ -235,10 +239,12 @@ func renderStylesheet(dump *mwdump.XMLDump, outDir string) error {
 		return nil
 	}
 
-	css, err := utils.PandocExtractCss(&dump.Pages[0])
+	extractor := newCssExtractor(&dump.Pages[0])
+	css, err := extractor.Execute()
 	if err != nil {
 		return err
 	}
+
 	cssPath := path.Join(outDir, stylesheetName)
 	file, err := os.Create(cssPath)
 	defer file.Close()
@@ -251,4 +257,45 @@ func renderStylesheet(dump *mwdump.XMLDump, outDir string) error {
 		return err
 	}
 	return nil
+}
+
+// Extracts pandoc's generated CSS from a page render.
+//
+// When pandoc is called using the `--standalone` param, it renders CSS into each page.
+// This extracts that CSS, so that you could dump it to a file and reference it within each page.
+type cssExtractor struct {
+	pandoc *utils.Pandoc
+}
+
+func newCssExtractor(page *mwdump.Page) *cssExtractor {
+	pandoc := utils.Pandoc{
+		From:       "mediawiki",
+		To:         "html",
+		Standalone: true,
+		Stdin:      strings.NewReader(page.LatestRevision().Text),
+	}
+	return &cssExtractor{pandoc: &pandoc}
+}
+
+func (this *cssExtractor) Execute() (string, error) {
+	raw, err := this.pandoc.Execute()
+	if err != nil {
+		return "", err
+	}
+	css, err := this.extract(raw)
+	if err != nil {
+		return "", err
+	}
+	return css, nil
+}
+
+func (this *cssExtractor) execute() (string, error) {
+	return this.pandoc.Execute()
+}
+
+func (this *cssExtractor) extract(raw string) (string, error) {
+	var htmlNode htmlElement.Html
+	xml.Unmarshal([]byte(raw), &htmlNode)
+	css := dedent.Dedent(htmlNode.Head.Style)
+	return css, nil
 }
