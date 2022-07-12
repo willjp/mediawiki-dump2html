@@ -39,8 +39,12 @@ func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) error {
 // Renders one page to HTML, returns as string.
 func (this *HTML) Render(page *mwdump.Page) (rendered string, err error) {
 	// rendered wiki
-	opts := utils.PandocOptions{From: "mediawiki", To: "html"}
-	renderRaw, err := utils.PandocConvert(page, &opts)
+	pandoc := utils.Pandoc{
+		From:  "mediawiki",
+		To:    "html",
+		Stdin: strings.NewReader(page.LatestRevision().Text),
+	}
+	renderRaw, err := pandoc.Execute()
 	if err != nil {
 		return "", err
 	}

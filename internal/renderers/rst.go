@@ -38,8 +38,12 @@ func (rst *RST) Render(page *mwdump.Page) (rendered string, err error) {
 		strings.Repeat("=", titleLen), "\n\n",
 	)
 
-	opts := utils.PandocOptions{From: "mediawiki", To: "rst"}
-	pandocRender, err := utils.PandocConvert(page, &opts)
+	pandoc := utils.Pandoc{
+		From:  "mediawiki",
+		To:    "rst",
+		Stdin: strings.NewReader(page.LatestRevision().Text),
+	}
+	pandocRender, err := pandoc.Execute()
 	if err != nil {
 		return "", err
 	}
