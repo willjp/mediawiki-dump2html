@@ -7,24 +7,25 @@ import (
 	"willpittman.net/x/logger"
 )
 
+// Interface for a Cmd
+type Cmd interface {
+	StdinPipe() (io.WriteCloser, error)
+	StdoutPipe() (io.ReadCloser, error)
+	StderrPipe() (io.ReadCloser, error)
+	Start() error
+	Wait() error
+}
+
 // Struct representing a pandoc command.
 // (primarily intended for format conversions).
-type Pandoc struct {
-	Stdin      io.Reader
+type PandocOpts struct {
 	From       string
 	To         string
 	Standalone bool
 }
 
-// Executes a pandoc command.
-func (this *Pandoc) Execute() (string, error) {
-	args := this.Args()
-	cmd := Cmd{Cmd: exec.Command("pandoc", args...)}
-	return this.ExecuteCmd(&cmd)
-}
-
 // Commandline Arguments for Pandoc
-func (this *Pandoc) Args() []string {
+func (this *PandocOpts) args() []string {
 	args := []string{"-f", this.From, "-t", this.To}
 	if this.Standalone == true {
 		args = append(args, "--standalone")
@@ -32,36 +33,46 @@ func (this *Pandoc) Args() []string {
 	return args
 }
 
+func (this *PandocOpts) Command() *PandocCmd {
+	args := this.args()
+	return &PandocCmd{Cmd: exec.Command("pandoc", args...)}
+}
+
+// Wraps exec.Cmd and adds methods related to executing a pandoc command.
+type PandocCmd struct {
+	Cmd
+}
+
 // Low-Level method to invoke pandoc on CLI (testable seam).
-func (this *Pandoc) ExecuteCmd(c *Cmd) (string, error) {
-	stdout, err := c.StdoutPipe()
+func (this *PandocCmd) Execute(stdin io.Reader) (string, error) {
+	stdout, err := this.StdoutPipe()
 	if err != nil {
 		return "", err
 	}
 	defer stdout.Close()
-	stderr, err := c.StderrPipe()
+	stderr, err := this.StderrPipe()
 	if err != nil {
 		return "", err
 	}
 	defer stderr.Close()
-	stdin, err := c.StdinPipe()
+	stdinW, err := this.StdinPipe()
 	if err != nil {
 		return "", err
 	}
 	ch := make(chan error, 1)
 	go func(ch chan<- error) {
-		defer stdin.Close()
-		data, err := io.ReadAll(this.Stdin)
+		defer stdinW.Close()
+		data, err := io.ReadAll(stdin)
 		if err != nil {
 			ch <- err
 			return
 		}
 
-		_, err = stdin.Write(data)
+		_, err = stdinW.Write(data)
 		ch <- err
 	}(ch)
 
-	err = c.Start()
+	err = this.Start()
 	if err != nil {
 		return "", err
 	}
@@ -77,14 +88,9 @@ func (this *Pandoc) ExecuteCmd(c *Cmd) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err = c.Wait(); err != nil {
+	if err = this.Wait(); err != nil {
 		logger.Debugf("STDERR:\n%s", errAll)
 		return "", err
 	}
 	return string(outAll), nil
-}
-
-// Low-Level test Seam that wraps exec.Cmd
-type Cmd struct {
-	*exec.Cmd
 }

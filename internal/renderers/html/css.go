@@ -2,6 +2,7 @@ package renderers
 
 import (
 	"encoding/xml"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -45,21 +46,22 @@ func RenderStylesheet(dump *mwdump.XMLDump, outDir string) error {
 // When pandoc is called using the `--standalone` param, it renders CSS into each page.
 // This extracts that CSS, so that you could dump it to a file and reference it within each page.
 type cssExtractor struct {
-	pandoc *utils.Pandoc
+	cmd   *utils.PandocCmd
+	stdin io.Reader
 }
 
 func newCssExtractor(page *mwdump.Page) *cssExtractor {
-	pandoc := utils.Pandoc{
+	opts := utils.PandocOpts{
 		From:       "mediawiki",
 		To:         "html",
 		Standalone: true,
-		Stdin:      strings.NewReader(page.LatestRevision().Text),
 	}
-	return &cssExtractor{pandoc: &pandoc}
+	cmd := opts.Command()
+	return &cssExtractor{cmd: cmd, stdin: strings.NewReader(page.LatestRevision().Text)}
 }
 
 func (this *cssExtractor) Execute() (string, error) {
-	raw, err := this.pandoc.Execute()
+	raw, err := this.cmd.Execute(this.stdin)
 	if err != nil {
 		return "", err
 	}
@@ -68,10 +70,6 @@ func (this *cssExtractor) Execute() (string, error) {
 		return "", err
 	}
 	return css, nil
-}
-
-func (this *cssExtractor) execute() (string, error) {
-	return this.pandoc.Execute()
 }
 
 func (this *cssExtractor) extract(raw string) (string, error) {
