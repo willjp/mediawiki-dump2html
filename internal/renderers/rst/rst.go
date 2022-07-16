@@ -18,12 +18,12 @@ func (rst *RST) Filename(pageTitle string) string {
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
-func (html *RST) Setup(dump *mwdump.XMLDump, outDir string) error {
+func (html *RST) Setup(dump *mwdump.XMLDump, outDir string) []error {
 	return nil
 }
 
 // Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
-func (rst *RST) Render(page *mwdump.Page) (rendered string, err error) {
+func (rst *RST) Render(page *mwdump.Page) (rendered string, errs []error) {
 	directives := dedent.Dedent(`
 	.. role:: raw-html(raw)
 	  :format: html
@@ -43,9 +43,9 @@ func (rst *RST) Render(page *mwdump.Page) (rendered string, err error) {
 		To:   "rst",
 	}
 	cmd := opts.Command()
-	pandocRender, err := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
-	if err != nil {
-		return "", err
+	pandocRender, errs := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
+	if errs != nil {
+		return "", errs
 	}
 
 	// replace '<br>' with something rst understands

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 func TestSantizePath(t *testing.T) {
@@ -26,7 +25,7 @@ func TestSantizePath(t *testing.T) {
 	}
 	for _, tcase := range cases {
 		t.Run(tcase.test, func(t *testing.T) {
-			res := utils.SanitizeFilename(tcase.path)
+			res := SanitizeFilename(tcase.path)
 			assert.Equal(t, string(res), string(tcase.expects))
 		})
 	}

@@ -20,28 +20,29 @@ func (html *HTML) Filename(pageTitle string) string {
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
-func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) error {
+func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) []error {
 	return RenderStylesheet(dump, outDir)
 }
 
 // Renders one page to HTML, returns as string.
-func (this *HTML) Render(page *mwdump.Page) (rendered string, err error) {
+func (this *HTML) Render(page *mwdump.Page) (rendered string, errs []error) {
 	// rendered wiki
 	opts := utils.PandocOpts{
 		From: "mediawiki",
 		To:   "html",
 	}
 	cmd := opts.Command()
-	renderRaw, err := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
-	if err != nil {
-		return "", err
+	renderRaw, errs := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
+	if errs != nil {
+		return "", errs
 	}
 
 	// parses/modifies/re-renders HTML (correcting links, setting header-levels, ...)
 	node, err := html.Parse(strings.NewReader(renderRaw))
 	if err != nil {
 		utils.LogWarnOn(err)
-		return "", err
+		errs = append(errs, err)
+		return "", errs
 	}
 	node, _ = this.adjust(node, page)
 	var render strings.Builder

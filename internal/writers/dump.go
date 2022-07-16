@@ -13,7 +13,7 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
-func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) error {
+func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) []error {
 	renderer.Setup(dump, outDir)
 
 	for _, page := range dump.Pages {
@@ -23,7 +23,7 @@ func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) e
 	return nil
 }
 
-func Dump(renderer renderers.Renderer, page *mwdump.Page, outPath string) error {
+func Dump(renderer renderers.Renderer, page *mwdump.Page, outPath string) []error {
 	var fileModified time.Time
 	stat, err := os.Stat(outPath)
 	switch {
@@ -38,9 +38,9 @@ func Dump(renderer renderers.Renderer, page *mwdump.Page, outPath string) error 
 	revision := page.LatestRevision()
 	if revision.Timestamp.After(fileModified) {
 		logger.Infof("Writing: %s\n", outPath)
-		rendered, err := renderer.Render(page)
-		if err != nil {
-			return err
+		rendered, errs := renderer.Render(page)
+		if errs != nil {
+			return errs
 		}
 
 		file, err := os.Create(outPath)
@@ -50,7 +50,8 @@ func Dump(renderer renderers.Renderer, page *mwdump.Page, outPath string) error 
 		_, err = file.WriteString(rendered)
 		if err != nil {
 			utils.RmFileOn(file, err)
-			return err
+			errs = append(errs, err)
+			return errs
 		}
 	}
 	return nil
