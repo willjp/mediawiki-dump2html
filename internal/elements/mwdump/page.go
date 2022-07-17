@@ -7,5 +7,11 @@ type Page struct {
 }
 
 func (page *Page) LatestRevision() Revision {
-	return page.Revision[len(page.Revision)-1]
+	latest := page.Revision[0]
+	for _, revision := range page.Revision {
+		if latest.Timestamp.Before(revision.Timestamp) {
+			latest = revision
+		}
+	}
+	return latest
 }
