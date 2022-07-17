@@ -13,9 +13,7 @@ type PandocCmd struct {
 }
 
 // Low-Level method to invoke pandoc on CLI (testable seam).
-func (this *PandocCmd) Execute(stdin io.Reader) (string, []error) {
-	var errs []error
-
+func (this *PandocCmd) Execute(stdin io.Reader) (render string, errs []error) {
 	// build pipes
 	stdout, err := this.StdoutPipe()
 	if err != nil {
@@ -44,9 +42,12 @@ func (this *PandocCmd) Execute(stdin io.Reader) (string, []error) {
 		errs = append(errs, err)
 		return "", errs
 	}
-	ch := make(chan error, 1)
+	ch := make(chan error, 2)
 	go func(ch chan<- error) {
-		defer stdinW.Close()
+		defer func() {
+			ch <- stdinW.Close()
+			close(ch)
+		}()
 		data, err := io.ReadAll(stdin)
 		if err != nil {
 			ch <- err
@@ -63,10 +64,14 @@ func (this *PandocCmd) Execute(stdin io.Reader) (string, []error) {
 		errs = append(errs, err)
 		return "", errs
 	}
-	err = <-ch
-	if err != nil {
-		errs = append(errs, err)
-		return "", errs
+	for {
+		err, ok := <-ch
+		if !ok {
+			break
+		} else if err != nil {
+			errs = append(errs, err)
+			return "", errs
+		}
 	}
 	outAll, err := io.ReadAll(stdout)
 	if err != nil {

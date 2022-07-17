@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -8,22 +9,98 @@ import (
 	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
 )
 
-// Stub out the pandoc process.
-//   * Stdin is readable (we can test what it receives)
-//   * Each test receives fake stdout/stderr results
-//
-// based on this fake pandoc output, assert method behaviour.
-func TestPandocCmd(t *testing.T) {
+func TestExecuteSuccess(t *testing.T) {
 	var stdin strings.Builder
-	html := "<html><h2>foo</h2></html>"
+	stdin.WriteString("")
 	cmd := test.FakeCmd{
-		Stdin:  test.FakeWriteCloser{Writer: stdin},
-		Stderr: test.FakeReadCloser{Reader: strings.NewReader("")},
-		Stdout: test.FakeReadCloser{Reader: strings.NewReader(html)},
+		Stdin:  &test.FakeWriteCloser{Writer: &stdin},
+		Stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
+		Stdout: &test.FakeReadCloser{Reader: strings.NewReader("<html><h2>foo</h2></html>")},
 		Args:   []string{"pandoc", "-f", "mediawiki", "-t", "html"},
 	}
 	pcmd := PandocCmd{Cmd: cmd}
 	result, errs := pcmd.Execute(strings.NewReader("== My Header =="))
 	assert.Nil(t, errs)
-	assert.Equal(t, html, result)
+	assert.Equal(t, "<html><h2>foo</h2></html>", result)
+}
+
+func TestExecuteAppliesStdinToProcess(t *testing.T) {
+	var stdin strings.Builder
+	stdin.WriteString("")
+	html := "<html><h2>foo</h2></html>"
+	cmd := test.FakeCmd{
+		Stdin:  &test.FakeWriteCloser{Writer: &stdin},
+		Stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
+		Stdout: &test.FakeReadCloser{Reader: strings.NewReader(html)},
+		Args:   []string{"pandoc", "-f", "mediawiki", "-t", "html"},
+	}
+	pcmd := PandocCmd{Cmd: cmd}
+	_, errs := pcmd.Execute(strings.NewReader("== My Header =="))
+
+	assert.Nil(t, errs)
+	assert.Equal(t, "== My Header ==", stdin.String())
+}
+
+func TestExecuteReturnErrors(t *testing.T) {
+	var ExpectedError = errors.New("Expected Test Error")
+	tcases := []struct {
+		name   string
+		stdin  *test.FakeWriteCloser
+		stderr *test.FakeReadCloser
+		stdout *test.FakeReadCloser
+	}{
+		{
+			name:   "STDIN Close error returned",
+			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}, CloseError: ExpectedError},
+			stdout: &test.FakeReadCloser{Reader: strings.NewReader("")},
+			stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
+		},
+		{
+			name:   "STDOUT Close error returned",
+			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}},
+			stdout: &test.FakeReadCloser{Reader: strings.NewReader(""), CloseError: ExpectedError},
+			stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
+		},
+		{
+			name:   "STDERR Close error returned",
+			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}},
+			stdout: &test.FakeReadCloser{Reader: strings.NewReader("")},
+			stderr: &test.FakeReadCloser{Reader: strings.NewReader(""), CloseError: ExpectedError},
+		},
+		{
+			name:   "STDIN Write error returned",
+			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}, WriteError: ExpectedError},
+			stdout: &test.FakeReadCloser{Reader: strings.NewReader("")},
+			stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
+		},
+		{
+			name:   "STDOUT Write error returned",
+			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}},
+			stdout: &test.FakeReadCloser{Reader: strings.NewReader(""), ReadError: ExpectedError},
+			stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
+		},
+		{
+			name:   "STDERR Write error returned",
+			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}},
+			stdout: &test.FakeReadCloser{Reader: strings.NewReader("")},
+			stderr: &test.FakeReadCloser{Reader: strings.NewReader(""), ReadError: ExpectedError},
+		},
+	}
+	for _, tcase := range tcases {
+		t.Run(tcase.name, func(t *testing.T) {
+			cmd := test.FakeCmd{
+				Stdin:  tcase.stdin,
+				Stdout: tcase.stdout,
+				Stderr: tcase.stderr,
+				Args:   []string{"pandoc", "-f", "mediawiki", "-t", "html"},
+			}
+			pcmd := PandocCmd{Cmd: cmd}
+			_, errs := pcmd.Execute(strings.NewReader("== My Header =="))
+			assert.Equal(t, 1, len(errs))
+			if len(errs) != 1 {
+				return
+			}
+			assert.Error(t, ExpectedError, errs[0])
+		})
+	}
 }
