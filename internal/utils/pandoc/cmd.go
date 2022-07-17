@@ -2,6 +2,7 @@ package utils
 
 import (
 	"io"
+	"sync"
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
@@ -15,48 +16,53 @@ type Cmd struct {
 
 // Low-Level method to invoke pandoc on CLI (testable seam).
 func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
+	// record goroutine errors
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	ch := make(chan error, 2)
+	defer func(ch <-chan error) {
+		wg.Wait()
+		err := <-ch
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}(ch)
+
 	// build pipes
 	stdout, err := this.StdoutPipe()
 	if err != nil {
-		return "", append(errs, err)
+		errs = append(errs, err)
 	}
-	defer func() {
-		err := stdout.Close()
-		if err != nil {
-			errs = append(errs, err)
-		}
-	}()
-
 	stderr, err := this.StderrPipe()
 	if err != nil {
-		return "", append(errs, err)
+		errs = append(errs, err)
 	}
-	defer func() {
-		err = stderr.Close()
-		if err != nil {
-			errs = append(errs, err)
-		}
-	}()
-
 	stdinW, err := this.StdinPipe()
 	if err != nil {
 		errs = append(errs, err)
+	}
+	if len(errs) > 0 {
 		return "", errs
 	}
-	ch := make(chan error, 2)
+
+	// write stdin
 	go func(ch chan<- error) {
 		defer func() {
-			ch <- stdinW.Close()
+			err := stdinW.Close()
+			if err != nil {
+				ch <- err
+			}
 			close(ch)
+			wg.Done()
 		}()
 		data, err := io.ReadAll(stdin)
 		if err != nil {
 			ch <- err
 			return
 		}
-
-		_, err = stdinW.Write(data)
-		ch <- err
+		if _, err = stdinW.Write(data); err != nil {
+			ch <- err
+		}
 	}(ch)
 
 	// run command
@@ -65,29 +71,23 @@ func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
 		errs = append(errs, err)
 		return "", errs
 	}
-	for {
-		err, ok := <-ch
-		if !ok {
-			break
-		} else if err != nil {
-			errs = append(errs, err)
-			return "", errs
-		}
-	}
+
 	outAll, err := io.ReadAll(stdout)
 	if err != nil {
 		errs = append(errs, err)
-		return "", errs
 	}
 	errAll, err := io.ReadAll(stderr)
 	if err != nil {
 		errs = append(errs, err)
+	}
+	if len(errs) > 0 {
 		return "", errs
 	}
-	if err = this.Wait(); err != nil {
+
+	err = this.Wait()
+	if err != nil {
 		logger.Debugf("STDERR:\n%s", errAll)
 		errs = append(errs, err)
-		return "", errs
 	}
-	return string(outAll), nil
+	return string(outAll), errs
 }

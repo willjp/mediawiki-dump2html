@@ -49,23 +49,12 @@ func TestExecuteReturnErrors(t *testing.T) {
 		stderr *test.FakeReadCloser
 		stdout *test.FakeReadCloser
 	}{
+		// STDOUT/STDERR Close handled by exec.Cmd.Wait()
 		{
 			name:   "STDIN Close error returned",
 			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}, CloseError: ExpectedError},
 			stdout: &test.FakeReadCloser{Reader: strings.NewReader("")},
 			stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
-		},
-		{
-			name:   "STDOUT Close error returned",
-			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}},
-			stdout: &test.FakeReadCloser{Reader: strings.NewReader(""), CloseError: ExpectedError},
-			stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
-		},
-		{
-			name:   "STDERR Close error returned",
-			stdin:  &test.FakeWriteCloser{Writer: &strings.Builder{}},
-			stdout: &test.FakeReadCloser{Reader: strings.NewReader("")},
-			stderr: &test.FakeReadCloser{Reader: strings.NewReader(""), CloseError: ExpectedError},
 		},
 		{
 			name:   "STDIN Write error returned",

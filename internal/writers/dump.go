@@ -13,12 +13,18 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
-func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) []error {
+func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
 	renderer.Setup(dump, outDir)
 
 	for _, page := range dump.Pages {
 		outPath := path.Join(outDir, renderer.Filename(page.Title))
-		Dump(renderer, &page, outPath)
+		new_errs := Dump(renderer, &page, outPath)
+		if new_errs != nil {
+			errs = append(errs, new_errs...)
+			for _, err := range new_errs {
+				logger.Errorf("Error dumping '%s' -- %s", outPath, err)
+			}
+		}
 	}
 	return nil
 }
