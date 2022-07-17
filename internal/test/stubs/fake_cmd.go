@@ -2,6 +2,8 @@ package test
 
 import "io"
 
+// Stub for interface of exec.Cmd that does not start a subprocess.
+//  Provide stubs for Stdin, Stdout, Stderr to fake process inputs and behaviour.
 type FakeCmd struct {
 	Stdin  io.WriteCloser
 	Stdout io.ReadCloser
