@@ -25,14 +25,17 @@ func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) []error {
 	return RenderStylesheet(dump, outDir)
 }
 
-// Renders one page to HTML, returns as string.
-func (this *HTML) Render(page *mwdump.Page) (rendered string, errs []error) {
-	// rendered wiki
+// Prepares Command
+func (this *HTML) RenderCmd() *pandoc.Cmd {
 	opts := pandoc.Opts{
 		From: "mediawiki",
 		To:   "html",
 	}
-	cmd := opts.Command()
+	return opts.Command()
+}
+
+// Executes Provided Command to renders one page to HTML.
+func (this *HTML) RenderExec(cmd *pandoc.Cmd, page *mwdump.Page) (rendered string, errs []error) {
 	renderRaw, errs := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
 	if errs != nil {
 		return "", errs

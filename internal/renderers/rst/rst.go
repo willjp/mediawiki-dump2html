@@ -23,8 +23,16 @@ func (html *RST) Setup(dump *mwdump.XMLDump, outDir string) []error {
 	return nil
 }
 
+func (this *RST) RenderCmd() *pandoc.Cmd {
+	opts := pandoc.Opts{
+		From: "mediawiki",
+		To:   "rst",
+	}
+	return opts.Command()
+}
+
 // Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
-func (rst *RST) Render(page *mwdump.Page) (rendered string, errs []error) {
+func (rst *RST) RenderExec(cmd *pandoc.Cmd, page *mwdump.Page) (rendered string, errs []error) {
 	directives := dedent.Dedent(`
 	.. role:: raw-html(raw)
 	  :format: html
@@ -39,11 +47,6 @@ func (rst *RST) Render(page *mwdump.Page) (rendered string, errs []error) {
 		strings.Repeat("=", titleLen), "\n\n",
 	)
 
-	opts := pandoc.Opts{
-		From: "mediawiki",
-		To:   "rst",
-	}
-	cmd := opts.Command()
 	pandocRender, errs := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
 	if errs != nil {
 		return "", errs
