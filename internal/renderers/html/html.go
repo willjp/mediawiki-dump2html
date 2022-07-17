@@ -3,6 +3,7 @@ package renderers
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -11,6 +12,8 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 )
+
+var validSchemeRx = regexp.MustCompile(`^(http|https|ftp|file|fax|mailto|tel)$`)
 
 type HTML struct{}
 
@@ -62,31 +65,15 @@ func (this *HTML) adjust(node *html.Node, page *mwdump.Page) (*html.Node, error)
 	// process
 	node = this.adjustHeadNode(node, page)
 	node = this.adjustBodyNode(node, page)
-	node, err = this.adjustAnchorNode(node)
+	node = this.adjustHNode(node, page)
+	err = this.adjustAnchorNode(node)
 	if err != nil {
 		return nil, err
 	}
 
-	// recurse through children
-	var children []*html.Node
+	// recurse through and modify children
 	for child := node.FirstChild; child != nil; child = child.NextSibling {
-		child, err = this.adjust(child, page)
-		if err != nil {
-			return child, err
-		}
-		children = append(children, child)
-	}
-
-	// point Child/Sibling info in structs to the new children
-	if len(children) > 0 {
-		node.FirstChild = children[0]
-		node.LastChild = children[len(children)-1]
-	}
-	for index, child := range children {
-		if 0 < index && index < len(children)-1 {
-			child.PrevSibling = children[index-1]
-			child.NextSibling = children[index+1]
-		}
+		this.adjust(child, page)
 	}
 
 	return node, nil
@@ -168,49 +155,69 @@ func (this *HTML) adjustBodyNode(node *html.Node, page *mwdump.Page) *html.Node 
 	return node
 }
 
+func (this *HTML) adjustHNode(node *html.Node, page *mwdump.Page) *html.Node {
+	if node.Type != html.ElementNode {
+		return node
+	}
+	switch node.DataAtom {
+	case atom.H1:
+		// Don't modify the page's <h1>
+		for _, attr := range node.Attr {
+			if attr.Key != "id" {
+				continue
+			}
+			if attr.Val == toHtmlId(page.Title) {
+				return node
+			}
+		}
+		node.DataAtom = atom.H2
+		node.Data = "h2"
+	case atom.H2:
+		node.DataAtom = atom.H3
+		node.Data = "h3"
+	case atom.H3:
+		node.DataAtom = atom.H4
+		node.Data = "h4"
+	case atom.H4:
+		node.DataAtom = atom.H5
+		node.Data = "h5"
+	case atom.H5:
+		node.DataAtom = atom.H6
+		node.Data = "h6"
+	}
+	return node
+}
+
 // Modifes `<a href="">` elements, so they point to files we have written to disk.
 //
 //    - files on disk use POSIX compatible characters in filename
 //    - since serving statically without webserver, appends '.html' to filename
-func (this *HTML) adjustAnchorNode(node *html.Node) (finalNode *html.Node, err error) {
+func (this *HTML) adjustAnchorNode(node *html.Node) error {
 	if node.Type != html.ElementNode {
-		return node, nil
+		return nil
 	}
 	if node.DataAtom != atom.A {
-		return node, nil
+		return nil
 	}
-
 	var attrs []html.Attribute
 	for _, attr := range node.Attr {
 		if attr.Key != "href" {
 			attrs = append(attrs, attr)
-			continue
 		}
 
-		// ignore error, since we are correcting invalid urls
-		target, err := url.Parse(attr.Val)
-		if err != nil || !target.IsAbs() {
-			newAttr := html.Attribute{
-				Namespace: attr.Namespace,
-				Key:       attr.Key,
-				Val:       this.Filename(attr.Val),
-			}
-			attrs = append(attrs, newAttr)
-		} else {
-			attrs = append(attrs, attr)
+		if !attrSchemeValid(attr.Val) {
+			attr.Val = this.Filename(attr.Val)
 		}
+
+		attrs = append(attrs, attr)
 	}
+	node.Attr = attrs
 
-	return &html.Node{
-		Parent:      node.Parent,
-		FirstChild:  node.FirstChild,
-		LastChild:   node.LastChild,
-		PrevSibling: node.PrevSibling,
-		NextSibling: node.NextSibling,
-		Type:        node.Type,
-		DataAtom:    node.DataAtom,
-		Data:        node.Data,
-		Namespace:   node.Namespace,
-		Attr:        attrs,
-	}, nil
+	return nil
+}
+
+// Returns true if provided URL has a scheme that is allowlisted
+func attrSchemeValid(uri string) bool {
+	target, err := url.Parse(uri)
+	return err == nil && target.IsAbs() && validSchemeRx.MatchString(target.Scheme)
 }
