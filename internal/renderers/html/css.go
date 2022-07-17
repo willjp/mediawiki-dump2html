@@ -10,6 +10,7 @@ import (
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 
 	htmlElement "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/html"
 )
@@ -47,8 +48,8 @@ func RenderStylesheet(dump *mwdump.XMLDump, outDir string) []error {
 }
 
 // Builds pandoc command to render HTML with CSS.
-func PandocCommand() *utils.PandocCmd {
-	opts := utils.PandocOpts{
+func PandocCommand() *pandoc.Cmd {
+	opts := pandoc.Opts{
 		From:       "mediawiki",
 		To:         "html",
 		Standalone: true,
@@ -58,7 +59,7 @@ func PandocCommand() *utils.PandocCmd {
 }
 
 // Executes pandoc command, and extracts CSS
-func ExtractCss(cmd *utils.PandocCmd, src *mwdump.Page) (string, []error) {
+func ExtractCss(cmd *pandoc.Cmd, src *mwdump.Page) (string, []error) {
 	html, errs := cmd.Execute(strings.NewReader(src.LatestRevision().Text))
 	if errs != nil {
 		return "", errs

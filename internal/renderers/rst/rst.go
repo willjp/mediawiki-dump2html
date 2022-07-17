@@ -7,6 +7,7 @@ import (
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 )
 
 // Has methods for conversion, and keeps state used during conversion
@@ -38,7 +39,7 @@ func (rst *RST) Render(page *mwdump.Page) (rendered string, errs []error) {
 		strings.Repeat("=", titleLen), "\n\n",
 	)
 
-	opts := utils.PandocOpts{
+	opts := pandoc.Opts{
 		From: "mediawiki",
 		To:   "rst",
 	}

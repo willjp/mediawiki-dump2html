@@ -4,14 +4,14 @@ import "os/exec"
 
 // Struct representing a pandoc command.
 // (primarily intended for format conversions).
-type PandocOpts struct {
+type Opts struct {
 	From       string
 	To         string
 	Standalone bool
 }
 
 // Commandline Arguments for Pandoc
-func (this *PandocOpts) args() []string {
+func (this *Opts) args() []string {
 	args := []string{"-f", this.From, "-t", this.To}
 	if this.Standalone == true {
 		args = append(args, "--standalone")
@@ -19,8 +19,8 @@ func (this *PandocOpts) args() []string {
 	return args
 }
 
-func (this *PandocOpts) Command() *PandocCmd {
+func (this *Opts) Command() *Cmd {
 	args := this.args()
 	cmd := exec.Command("pandoc", args...)
-	return &PandocCmd{Cmd: cmd, Args: cmd.Args}
+	return &Cmd{Cmd: cmd, Args: cmd.Args}
 }

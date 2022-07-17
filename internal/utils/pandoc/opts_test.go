@@ -6,20 +6,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPandocOpts(t *testing.T) {
+func TestOpts(t *testing.T) {
 	tcases := []struct {
 		test    string
-		opts    PandocOpts
+		opts    Opts
 		expects []string
 	}{
 		{
 			test:    "Command() parses 'To,From' as params '-f FMT -t FMT'",
-			opts:    PandocOpts{From: "mediawiki", To: "html"},
+			opts:    Opts{From: "mediawiki", To: "html"},
 			expects: []string{"pandoc", "-f", "mediawiki", "-t", "html"},
 		},
 		{
 			test:    "Command() parses 'Standalone' as params '--standalone'",
-			opts:    PandocOpts{From: "mediawiki", To: "html", Standalone: true},
+			opts:    Opts{From: "mediawiki", To: "html", Standalone: true},
 			expects: []string{"pandoc", "-f", "mediawiki", "-t", "html", "--standalone"},
 		},
 	}

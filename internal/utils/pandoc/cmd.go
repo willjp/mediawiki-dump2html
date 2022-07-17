@@ -4,16 +4,17 @@ import (
 	"io"
 
 	"willpittman.net/x/logger"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.
-type PandocCmd struct {
-	Cmd
+type Cmd struct {
+	utils.Cmd
 	Args []string
 }
 
 // Low-Level method to invoke pandoc on CLI (testable seam).
-func (this *PandocCmd) Execute(stdin io.Reader) (render string, errs []error) {
+func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
 	// build pipes
 	stdout, err := this.StdoutPipe()
 	if err != nil {

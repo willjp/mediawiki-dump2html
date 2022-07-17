@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/html/atom"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 )
 
 type HTML struct{}
@@ -27,7 +28,7 @@ func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) []error {
 // Renders one page to HTML, returns as string.
 func (this *HTML) Render(page *mwdump.Page) (rendered string, errs []error) {
 	// rendered wiki
-	opts := utils.PandocOpts{
+	opts := pandoc.Opts{
 		From: "mediawiki",
 		To:   "html",
 	}
