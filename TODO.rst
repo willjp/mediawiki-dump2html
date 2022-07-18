@@ -5,17 +5,14 @@ TODO
 Cleanups
 --------
 
-* `writers.Dump()`
-   simplify error-handling using mv-on-write, this is more complicated than it needs to be.
-
 
 Bugfixes
 --------
 
 * `internal/elements/html` should not exist. HTML cannot be parsed by XML.
 
-* `internal/renderers/html` Some anchors are not being identified/replaced.
-   For example, `programming.html` has links that include `:` characters.
+* `renderers.HTML` pandoc's produced CSS is tied to the rendered page.
+  if we don't want to use standalone for each page, we'll need to create a dummy page to render with most syntax.
 
 
 Features
