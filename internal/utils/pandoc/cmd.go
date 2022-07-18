@@ -28,44 +28,58 @@ func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
 		}
 	}(ch)
 
-	// build pipes
-	stdout, err := this.StdoutPipe()
-	if err != nil {
-		errs = append(errs, err)
-	}
-	stderr, err := this.StderrPipe()
-	if err != nil {
-		errs = append(errs, err)
-	}
-	stdinW, err := this.StdinPipe()
-	if err != nil {
-		errs = append(errs, err)
-	}
+	stdinW, stdout, stderr, errs := this.buildPipes()
 	if len(errs) > 0 {
 		return "", errs
 	}
 
-	// write stdin
-	go func(ch chan<- error) {
-		defer func() {
-			err := stdinW.Close()
-			if err != nil {
-				ch <- err
-			}
-			close(ch)
-			wg.Done()
-		}()
-		data, err := io.ReadAll(stdin)
+	go this.writeStdin(stdinW, stdin, ch, &wg)
+
+	render, errs = this.start(stdout, stderr)
+	if len(errs) > 0 {
+		return "", errs
+	}
+	return render, errs
+}
+
+func (this *Cmd) buildPipes() (stdin io.WriteCloser, stdout io.Reader, stderr io.Reader, errs []error) {
+	var err error
+	stdin, err = this.StdinPipe()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	stdout, err = this.StdoutPipe()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	stderr, err = this.StderrPipe()
+	if err != nil {
+		errs = append(errs, err)
+	}
+	return stdin, stdout, stderr, errs
+}
+
+func (this *Cmd) writeStdin(writer io.WriteCloser, reader io.Reader, ch chan<- error, wg *sync.WaitGroup) {
+	defer func() {
+		err := writer.Close()
 		if err != nil {
 			ch <- err
-			return
 		}
-		if _, err = stdinW.Write(data); err != nil {
-			ch <- err
-		}
-	}(ch)
+		close(ch)
+		wg.Done()
+	}()
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		ch <- err
+		return
+	}
+	if _, err = writer.Write(data); err != nil {
+		ch <- err
+	}
+}
 
-	// run command
+func (this *Cmd) start(stdout io.Reader, stderr io.Reader) (render string, errs []error) {
+	var err error
 	err = this.Start()
 	if err != nil {
 		errs = append(errs, err)
