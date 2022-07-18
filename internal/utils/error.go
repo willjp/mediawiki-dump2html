@@ -6,10 +6,17 @@ import (
 	"willpittman.net/x/logger"
 )
 
-func RmFileOn(file *os.File, err error) {
+var osRemove = os.Remove
+
+type Namer interface {
+	Name() string
+}
+
+// file expects a os.File
+func RmFileOn(file Namer, err error) {
 	if err != nil {
 		logger.Errorf("Error encountered, removing: %s", file.Name())
-		os.Remove(file.Name())
+		osRemove(file.Name())
 	}
 }
 
