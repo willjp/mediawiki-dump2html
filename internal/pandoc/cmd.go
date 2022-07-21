@@ -5,12 +5,12 @@ import (
 	"sync"
 
 	"willpittman.net/x/logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
 
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.
 type Cmd struct {
-	utils.ExecCmd
+	interfaces.ExecCmd
 	args []string
 }
 

@@ -1,8 +1,8 @@
-package utils
+package interfaces
 
 import "io"
 
-// Interface for a ExecCmd
+// Interface for a exec.Cmd
 type ExecCmd interface {
 	StdinPipe() (io.WriteCloser, error)
 	StdoutPipe() (io.ReadCloser, error)
