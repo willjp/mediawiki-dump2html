@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRead(t *testing.T) {
+func TestFakeReadCloserRead(t *testing.T) {
 	t.Run("Returns ReadError when provided", func(t *testing.T) {
 		var ExpectedError = errors.New("Expected")
 		buf := make([]byte, 0)
@@ -26,7 +26,7 @@ func TestRead(t *testing.T) {
 	})
 }
 
-func TestClose(t *testing.T) {
+func TestFakeReadCloserClose(t *testing.T) {
 	t.Run("Returns CloseError when provided", func(t *testing.T) {
 		var ExpectedError = errors.New("Expected")
 		rCloser := FakeReadCloser{CloseError: ExpectedError}
