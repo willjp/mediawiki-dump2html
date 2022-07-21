@@ -11,16 +11,16 @@ import (
 )
 
 // implements interfaces/PandocExecutor
-type FakeCmdExecutor struct {
+type FakePandocExecutor struct {
 	cmd interfaces.CmdExecutor
 }
 
-func (this *FakeCmdExecutor) Execute(stdin io.Reader) (render string, errs []error) {
+func (this *FakePandocExecutor) Execute(stdin io.Reader) (render string, errs []error) {
 	result, _ := io.ReadAll(stdin)
 	return string(result), nil
 }
 
-func (this *FakeCmdExecutor) Args() []string {
+func (this *FakePandocExecutor) Args() []string {
 	return this.cmd.Args()
 }
 
@@ -29,7 +29,7 @@ func TestExecute(t *testing.T) {
 	t.Run("Forwards STDIN, and performs cmd.Execute()", func(t *testing.T) {
 		val := "abc"
 		stdin := strings.NewReader(val)
-		cmd := FakeCmdExecutor{}
+		cmd := FakePandocExecutor{}
 		executor := Executor{}
 		result, errs := executor.Execute(&cmd, stdin)
 
@@ -42,7 +42,7 @@ func TestArgs(t *testing.T) {
 	t.Run("Returns contained cmd.Args()", func(t *testing.T) {
 		args := []string{"foo", "-a", "--verbose"}
 		cmd := stubs.FakeCmd{CliArgs: args}
-		pandocCmd := FakeCmdExecutor{cmd: &cmd}
+		pandocCmd := FakePandocExecutor{cmd: &cmd}
 		executor := Executor{cmd: &pandocCmd}
 
 		assert.Equal(t, args, executor.Args())
