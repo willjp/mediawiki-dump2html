@@ -1,4 +1,4 @@
-package renderers
+package interfaces
 
 import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"

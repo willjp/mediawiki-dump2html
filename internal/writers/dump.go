@@ -9,11 +9,11 @@ import (
 
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
-func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
+func DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
 	renderer.Setup(dump, outDir)
 
 	for _, page := range dump.Pages {
@@ -29,7 +29,7 @@ func DumpAll(renderer renderers.Renderer, dump *mwdump.XMLDump, outDir string) (
 	return nil
 }
 
-func Dump(renderer renderers.Renderer, page *mwdump.Page, outPath string) []error {
+func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
 	var fileModified time.Time
 	stat, err := os.Stat(outPath)
 	switch {
