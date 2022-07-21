@@ -7,11 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func implementsIface(i ExecCmd) bool {
-	return true
-}
-
-func TestInterface(t *testing.T) {
-	// interface should cover a real exec.Cmd{}
+func TestExecCmd(t *testing.T) {
+	var implementsIface = func(i ExecCmd) bool {
+		return true
+	}
 	assert.True(t, implementsIface(&exec.Cmd{}))
 }
