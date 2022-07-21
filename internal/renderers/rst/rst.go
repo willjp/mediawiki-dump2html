@@ -6,19 +6,22 @@ import (
 
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 // Has methods for conversion, and keeps state used during conversion
-type RST struct{}
+type RST struct {
+	pandocExecutor interfaces.PandocExecutor
+}
 
 func New() RST {
 	executor := pandoc.Executor{}
 	return RST{pandocExecutor: &executor}
 }
 
-func (rst *RST) Filename(pageTitle string) string {
+func (this *RST) Filename(pageTitle string) string {
 	fileName := fmt.Sprint(pageTitle, ".rst")
 	return string(utils.SanitizeFilename([]byte(fileName)))
 }
