@@ -26,7 +26,7 @@ func TestOpts(t *testing.T) {
 	for _, tcase := range tcases {
 		cmd := tcase.opts.Command()
 		t.Run(tcase.test, func(t *testing.T) {
-			assert.Equal(t, tcase.expects, cmd.Args)
+			assert.Equal(t, tcase.expects, cmd.Args())
 		})
 	}
 }

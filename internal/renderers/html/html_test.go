@@ -1,15 +1,14 @@
 package renderers
 
 import (
+	"io"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 )
 
 var htmlWhitespaceRx = regexp.MustCompile(`(?m)(^\s+|\n)`)
@@ -40,14 +39,26 @@ func TestFilename(t *testing.T) {
 	}
 }
 
-func TestRenderCmd(t *testing.T) {
-	renderer := HTML{}
-	cmd := renderer.RenderCmd()
-	expects := []string{"pandoc", "-f", "mediawiki", "-t", "html"}
-	assert.Equal(t, expects, cmd.Args)
-}
+func TestRender(t *testing.T) {
+	t.Run("Commandline Arguments set correctly", func(t *testing.T) {
+		executor := test.FakePandocExecutor{}
+		renderer := newHTML(&executor)
+		page := mwdump.Page{
+			Title: "Main Page",
+			Revision: []mwdump.Revision{
+				{
+					Text:      "== My New Header ==",
+					Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
+				},
+			},
+		}
 
-func TestRenderExec(t *testing.T) {
+		_, err := renderer.Render(&page)
+		expects := []string{"pandoc", "-f", "mediawiki", "-t", "html"}
+		assert.Nil(t, err)
+		assert.Equal(t, expects, executor.Args())
+	})
+
 	t.Run("Renders Latest Page Revision", func(t *testing.T) {
 		page := mwdump.Page{
 			Title: "Main Page",
@@ -58,27 +69,22 @@ func TestRenderExec(t *testing.T) {
 				},
 			},
 		}
-		stdin := strings.Builder{}
-		stdin.Write([]byte(""))
-		cmd := test.FakeCmd{
-			Stdin:  &test.FakeWriteCloser{Writer: &stdin},
-			Stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
-			Stdout: &test.FakeReadCloser{Reader: strings.NewReader("<html><h2>foo</h2></html>")},
-		}
-		pcmd := pandoc.Cmd{Cmd: cmd}
-		renderer := HTML{}
-		renderer.RenderExec(&pcmd, &page)
-		assert.Equal(t, "== My New Header ==", stdin.String())
+		executor := test.FakePandocExecutor{}
+		renderer := newHTML(&executor)
+		renderer.Render(&page)
+		out, err := io.ReadAll(executor.Stdin)
+		assert.Nil(t, err)
+		assert.Equal(t, []byte("== My New Header =="), []byte(out))
 	})
 
 	tcases := []struct {
-		name         string
-		pandocRender string
-		expects      string
+		name    string
+		render  string
+		expects string
 	}{
 		{
-			name:         "Inserts Page Info",
-			pandocRender: "",
+			name:   "Inserts Page Info",
+			render: "",
 			expects: htmlWhitespaceRx.ReplaceAllString(`
 				<html>
 				  <head>
@@ -92,8 +98,8 @@ func TestRenderExec(t *testing.T) {
 			`, ""),
 		},
 		{
-			name:         "Increments all headers in page",
-			pandocRender: "<h1>Documentation</h1>",
+			name:   "Increments all headers in page",
+			render: "<h1>Documentation</h1>",
 			expects: htmlWhitespaceRx.ReplaceAllString(`
 				<html>
 				  <head>
@@ -108,8 +114,8 @@ func TestRenderExec(t *testing.T) {
 			`, ""),
 		},
 		{
-			name:         "Adds .html suffix to link URLs",
-			pandocRender: `<a href="another_page">Another Page</a>`,
+			name:   "Adds .html suffix to link URLs",
+			render: `<a href="another_page">Another Page</a>`,
 			expects: htmlWhitespaceRx.ReplaceAllString(`
 				<html>
 				  <head>
@@ -124,8 +130,8 @@ func TestRenderExec(t *testing.T) {
 			`, ""),
 		},
 		{
-			name:         "Sanitizes link urls to match files written to filesystem",
-			pandocRender: `<a href="Programming: Concepts">Programming: Concepts</a>`,
+			name:   "Sanitizes link urls to match files written to filesystem",
+			render: `<a href="Programming: Concepts">Programming: Concepts</a>`,
 			expects: htmlWhitespaceRx.ReplaceAllString(`
 				<html>
 				  <head>
@@ -146,16 +152,9 @@ func TestRenderExec(t *testing.T) {
 				Title:    "Main Page",
 				Revision: []mwdump.Revision{{}},
 			}
-			stdin := strings.Builder{}
-			stdin.Write([]byte(""))
-			cmd := test.FakeCmd{
-				Stdin:  &test.FakeWriteCloser{Writer: &stdin},
-				Stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
-				Stdout: &test.FakeReadCloser{Reader: strings.NewReader(tcase.pandocRender)},
-			}
-			pcmd := pandoc.Cmd{Cmd: cmd}
-			renderer := HTML{}
-			render, errs := renderer.RenderExec(&pcmd, &page)
+			executor := test.FakePandocExecutor{Render: tcase.render}
+			renderer := newHTML(&executor)
+			render, errs := renderer.Render(&page)
 
 			assert.Nil(t, errs)
 			assert.Equal(t, tcase.expects, render)

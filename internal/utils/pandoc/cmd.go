@@ -11,7 +11,11 @@ import (
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.
 type Cmd struct {
 	utils.Cmd
-	Args []string
+	args []string
+}
+
+func (this *Cmd) Args() []string {
+	return this.args
 }
 
 // Low-Level method to invoke pandoc on CLI (testable seam).

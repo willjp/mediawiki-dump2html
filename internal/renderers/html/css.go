@@ -22,7 +22,7 @@ func RenderStylesheet(dump *mwdump.XMLDump, outDir string) []error {
 	}
 
 	cmd := PandocCommand()
-	css, errs := ExtractCss(cmd, &dump.Pages[0])
+	css, errs := ExtractCss(&cmd, &dump.Pages[0])
 	if errs != nil {
 		return errs
 	}
@@ -48,7 +48,7 @@ func RenderStylesheet(dump *mwdump.XMLDump, outDir string) []error {
 }
 
 // Builds pandoc command to render HTML with CSS.
-func PandocCommand() *pandoc.Cmd {
+func PandocCommand() pandoc.Cmd {
 	opts := pandoc.Opts{
 		From:       "mediawiki",
 		To:         "html",

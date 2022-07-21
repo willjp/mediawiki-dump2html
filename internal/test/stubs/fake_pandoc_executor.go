@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
+	ipandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc/interfaces"
 )
 
 // A FakePandocExecutor that stubs a pandoc execution, and records the provided stdin.
@@ -12,13 +12,13 @@ type FakePandocExecutor struct {
 	Errors []error
 	Render string
 	Stdin  *bytes.Buffer
-	Args   []string
+	args   []string
 }
 
 //
 // Reads provided `stdin` into `this.Stdin`, exposing a seam to test the text that was written to it.
-func (this *FakePandocExecutor) Execute(cmd *pandoc.Cmd, stdin io.Reader) (render string, errs []error) {
-	this.Args = cmd.Args
+func (this *FakePandocExecutor) Execute(cmd ipandoc.CmdExecutor, stdin io.Reader) (render string, errs []error) {
+	this.args = cmd.Args()
 	this.Stdin = bytes.NewBuffer(nil)
 	conts, err := io.ReadAll(stdin)
 	if err != nil {
@@ -29,4 +29,8 @@ func (this *FakePandocExecutor) Execute(cmd *pandoc.Cmd, stdin io.Reader) (rende
 		panic(err)
 	}
 	return this.Render, this.Errors
+}
+
+func (this *FakePandocExecutor) Args() []string {
+	return this.args
 }

@@ -11,11 +11,24 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
+	executor "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc/executor"
 )
 
 var validSchemeRx = regexp.MustCompile(`^(http|https|ftp|file|fax|mailto|tel)$`)
 
-type HTML struct{}
+type HTML struct {
+	pandocExecutor executor.Executor
+}
+
+func New() HTML {
+	executor := executor.CliExecutor{}
+	return HTML{pandocExecutor: &executor}
+}
+
+// alt constructor for tests
+func newHTML(pandocExecutor executor.Executor) HTML {
+	return HTML{pandocExecutor: pandocExecutor}
+}
 
 func (html *HTML) Filename(pageTitle string) string {
 	// downcase everything - mediawiki has some links that are not case sensitive
@@ -28,34 +41,35 @@ func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) []error {
 	return RenderStylesheet(dump, outDir)
 }
 
-// Prepares Command
-func (this *HTML) RenderCmd() *pandoc.Cmd {
-	opts := pandoc.Opts{
-		From: "mediawiki",
-		To:   "html",
-	}
-	return opts.Command()
-}
-
-// Executes Provided Command to renders one page to HTML.
-func (this *HTML) RenderExec(cmd *pandoc.Cmd, page *mwdump.Page) (rendered string, errs []error) {
-	renderRaw, errs := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
+func (this *HTML) Render(page *mwdump.Page) (render string, errs []error) {
+	cmd := this.renderCmd()
+	stdin := strings.NewReader(page.LatestRevision().Text)
+	raw, errs := this.pandocExecutor.Execute(&cmd, stdin)
 	if errs != nil {
 		return "", errs
 	}
 
 	// parses/modifies/re-renders HTML (correcting links, setting header-levels, ...)
-	node, err := html.Parse(strings.NewReader(renderRaw))
+	node, err := html.Parse(strings.NewReader(raw))
 	if err != nil {
 		utils.LogWarnOn(err)
 		errs = append(errs, err)
 		return "", errs
 	}
 	node, _ = this.adjust(node, page)
-	var render strings.Builder
-	html.Render(&render, node)
+	var finalRender strings.Builder
+	html.Render(&finalRender, node)
 
-	return render.String(), nil
+	return finalRender.String(), nil
+}
+
+// Prepares Command
+func (this *HTML) renderCmd() pandoc.Cmd {
+	opts := pandoc.Opts{
+		From: "mediawiki",
+		To:   "html",
+	}
+	return opts.Command()
 }
 
 // Rebuilds HTML Tree, adjusted for serving over static html

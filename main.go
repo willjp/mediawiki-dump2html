@@ -31,6 +31,6 @@ func main() {
 	var dump mwdump.XMLDump
 	xml.Unmarshal(raw, &dump)
 
-	renderer := renderers.HTML{}
+	renderer := renderers.New()
 	writers.DumpAll(&renderer, &dump, outDir)
 }

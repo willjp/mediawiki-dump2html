@@ -19,8 +19,8 @@ func (this *Opts) args() []string {
 	return args
 }
 
-func (this *Opts) Command() *Cmd {
+func (this *Opts) Command() Cmd {
 	args := this.args()
 	cmd := exec.Command("pandoc", args...)
-	return &Cmd{Cmd: cmd, Args: cmd.Args}
+	return Cmd{Cmd: cmd, args: cmd.Args}
 }

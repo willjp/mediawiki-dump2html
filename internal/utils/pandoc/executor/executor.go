@@ -3,9 +3,10 @@ package utils
 import (
 	"io"
 
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
+	ipandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc/interfaces"
 )
 
 type Executor interface {
-	Execute(cmd *pandoc.Cmd, stdin io.Reader) (render string, errs []error)
+	Execute(cmd ipandoc.CmdExecutor, stdin io.Reader) (render string, errs []error)
+	Args() []string
 }

@@ -44,8 +44,7 @@ func Dump(renderer renderers.Renderer, page *mwdump.Page, outPath string) []erro
 	revision := page.LatestRevision()
 	if revision.Timestamp.After(fileModified) {
 		logger.Infof("Writing: %s\n", outPath)
-		cmd := renderer.RenderCmd()
-		rendered, errs := renderer.RenderExec(cmd, page)
+		rendered, errs := renderer.Render(page)
 		if errs != nil {
 			return errs
 		}
