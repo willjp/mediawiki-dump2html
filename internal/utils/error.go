@@ -4,16 +4,13 @@ import (
 	"os"
 
 	"willpittman.net/x/logger"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
 
 var osRemove = os.Remove
 
-type Namer interface {
-	Name() string
-}
-
 // file expects a os.File
-func RmFileOn(file Namer, err error) {
+func RmFileOn(file interfaces.OsFile, err error) {
 	if err != nil {
 		logger.Errorf("Error encountered, removing: %s", file.Name())
 		osRemove(file.Name())
