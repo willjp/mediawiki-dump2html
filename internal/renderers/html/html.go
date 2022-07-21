@@ -17,7 +17,7 @@ import (
 var validSchemeRx = regexp.MustCompile(`^(http|https|ftp|file|fax|mailto|tel)$`)
 
 type HTML struct {
-	pandocExecutor interfaces.Executor
+	pandocExecutor interfaces.PandocExecutor
 }
 
 func New() HTML {
@@ -26,7 +26,7 @@ func New() HTML {
 }
 
 // alt constructor for tests
-func newHTML(pandocExecutor interfaces.Executor) HTML {
+func newHTML(pandocExecutor interfaces.PandocExecutor) HTML {
 	return HTML{pandocExecutor: pandocExecutor}
 }
 

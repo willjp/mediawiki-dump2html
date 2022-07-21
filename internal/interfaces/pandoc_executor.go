@@ -4,7 +4,7 @@ import (
 	"io"
 )
 
-type Executor interface {
+type PandocExecutor interface {
 	Execute(cmd CmdExecutor, stdin io.Reader) (render string, errs []error)
 	Args() []string
 }
