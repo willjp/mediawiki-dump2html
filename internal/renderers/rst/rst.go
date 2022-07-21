@@ -6,12 +6,17 @@ import (
 
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 )
 
 // Has methods for conversion, and keeps state used during conversion
 type RST struct{}
+
+func New() RST {
+	executor := pandoc.Executor{}
+	return RST{pandocExecutor: &executor}
+}
 
 func (rst *RST) Filename(pageTitle string) string {
 	fileName := fmt.Sprint(pageTitle, ".rst")
@@ -19,20 +24,18 @@ func (rst *RST) Filename(pageTitle string) string {
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
-func (html *RST) Setup(dump *mwdump.XMLDump, outDir string) []error {
+func (this *RST) Setup(dump *mwdump.XMLDump, outDir string) []error {
 	return nil
 }
 
-func (this *RST) RenderCmd() *pandoc.Cmd {
-	opts := pandoc.Opts{
-		From: "mediawiki",
-		To:   "rst",
+func (this *RST) Render(page *mwdump.Page) (render string, errs []error) {
+	cmd := this.renderCmd()
+	stdin := strings.NewReader(page.LatestRevision().Text)
+	raw, errs := this.pandocExecutor.Execute(&cmd, stdin)
+	if errs != nil {
+		return "", errs
 	}
-	return opts.Command()
-}
 
-// Converts mediawiki text to rst, with tweaks so it behaves well with sphinx-docs.
-func (rst *RST) RenderExec(cmd *pandoc.Cmd, page *mwdump.Page) (rendered string, errs []error) {
 	directives := dedent.Dedent(`
 	.. role:: raw-html(raw)
 	  :format: html
@@ -47,13 +50,16 @@ func (rst *RST) RenderExec(cmd *pandoc.Cmd, page *mwdump.Page) (rendered string,
 		strings.Repeat("=", titleLen), "\n\n",
 	)
 
-	pandocRender, errs := cmd.Execute(strings.NewReader(page.LatestRevision().Text))
-	if errs != nil {
-		return "", errs
-	}
-
 	// replace '<br>' with something rst understands
-	render := strings.ReplaceAll(pandocRender, "<br>", ":raw-html:`<br/>`")
+	renderRaw := strings.ReplaceAll(raw, "<br>", ":raw-html:`<br/>`")
 
-	return fmt.Sprint(directives, string(title), render), nil
+	return fmt.Sprint(directives, string(title), renderRaw), nil
+}
+
+func (this *RST) renderCmd() pandoc.Cmd {
+	opts := pandoc.Opts{
+		From: "mediawiki",
+		To:   "rst",
+	}
+	return opts.Command()
 }

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 )
 
 func TestFakePandocExecutor(t *testing.T) {

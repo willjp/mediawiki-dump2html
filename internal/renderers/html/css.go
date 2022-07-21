@@ -9,8 +9,8 @@ import (
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
 
 	htmlElement "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/html"
 )

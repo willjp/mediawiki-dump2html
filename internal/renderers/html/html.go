@@ -9,24 +9,24 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
-	pandoc "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc"
-	executor "willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils/pandoc/executor"
 )
 
 var validSchemeRx = regexp.MustCompile(`^(http|https|ftp|file|fax|mailto|tel)$`)
 
 type HTML struct {
-	pandocExecutor executor.Executor
+	pandocExecutor interfaces.Executor
 }
 
 func New() HTML {
-	executor := executor.CliExecutor{}
+	executor := pandoc.Executor{}
 	return HTML{pandocExecutor: &executor}
 }
 
 // alt constructor for tests
-func newHTML(pandocExecutor executor.Executor) HTML {
+func newHTML(pandocExecutor interfaces.Executor) HTML {
 	return HTML{pandocExecutor: pandocExecutor}
 }
 
