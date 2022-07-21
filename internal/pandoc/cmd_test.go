@@ -12,7 +12,7 @@ import (
 func TestExecuteSuccess(t *testing.T) {
 	var stdin strings.Builder
 	stdin.WriteString("")
-	cmd := test.FakeCmd{
+	cmd := test.FakeExecCmd{
 		Stdin:  &test.FakeWriteCloser{Writer: &stdin},
 		Stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
 		Stdout: &test.FakeReadCloser{Reader: strings.NewReader("<html><h2>foo</h2></html>")},
@@ -28,7 +28,7 @@ func TestExecuteAppliesStdinToProcess(t *testing.T) {
 	var stdin strings.Builder
 	stdin.WriteString("")
 	html := "<html><h2>foo</h2></html>"
-	cmd := test.FakeCmd{
+	cmd := test.FakeExecCmd{
 		Stdin:  &test.FakeWriteCloser{Writer: &stdin},
 		Stderr: &test.FakeReadCloser{Reader: strings.NewReader("")},
 		Stdout: &test.FakeReadCloser{Reader: strings.NewReader(html)},
@@ -77,7 +77,7 @@ func TestExecuteReturnErrors(t *testing.T) {
 	}
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
-			cmd := test.FakeCmd{
+			cmd := test.FakeExecCmd{
 				Stdin:  tcase.stdin,
 				Stdout: tcase.stdout,
 				Stderr: tcase.stderr,
