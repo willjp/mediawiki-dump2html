@@ -22,5 +22,5 @@ func (this *Opts) args() []string {
 func (this *Opts) Command() Cmd {
 	args := this.args()
 	cmd := exec.Command("pandoc", args...)
-	return Cmd{Cmd: cmd, args: cmd.Args}
+	return Cmd{ExecCmd: cmd, args: cmd.Args}
 }

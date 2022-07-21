@@ -10,7 +10,7 @@ import (
 
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.
 type Cmd struct {
-	utils.Cmd
+	utils.ExecCmd
 	args []string
 }
 
