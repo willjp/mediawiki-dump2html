@@ -7,20 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	stubs "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
 )
-
-// implements interfaces/CmdExecutor
-type FakeCmd struct {
-	args []string
-}
-
-func (this *FakeCmd) Execute(stdin io.Reader) (render string, errs []error) {
-	return "", nil
-}
-
-func (this *FakeCmd) Args() []string {
-	return this.args
-}
 
 // implements interfaces/PandocExecutor
 type FakeCmdExecutor struct {
@@ -53,7 +41,7 @@ func TestExecute(t *testing.T) {
 func TestArgs(t *testing.T) {
 	t.Run("Returns contained cmd.Args()", func(t *testing.T) {
 		args := []string{"foo", "-a", "--verbose"}
-		cmd := FakeCmd{args: args}
+		cmd := stubs.FakeCmd{CliArgs: args}
 		pandocCmd := FakeCmdExecutor{cmd: &cmd}
 		executor := Executor{cmd: &pandocCmd}
 
