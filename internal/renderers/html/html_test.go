@@ -2,18 +2,26 @@ package renderers
 
 import (
 	"io"
+	"path"
 	"regexp"
 	"testing"
 	"time"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
 )
 
 var htmlWhitespaceRx = regexp.MustCompile(`(?m)(^\s+|\n)`)
 
-func TestFilename(t *testing.T) {
+func TestHTMLNew(t *testing.T) {
+	html := New()
+	assert.NotNil(t, html.pandocExecutor)
+}
+
+func TestHTMLFilename(t *testing.T) {
 	tcases := []struct {
 		name      string
 		pageTitle string
@@ -39,7 +47,35 @@ func TestFilename(t *testing.T) {
 	}
 }
 
-func TestRender(t *testing.T) {
+func TestHTMLSetup(t *testing.T) {
+	appfs.AppFs = afero.NewMemMapFs()
+	Os := afero.Afero{Fs: appfs.AppFs}
+	t.Run("Writes Expected File", func(t *testing.T) {
+		filepath := path.Join("/var/tmp", stylesheetName)
+		pages := []mwdump.Page{
+			{
+				Title: "main_page",
+				Revision: []mwdump.Revision{
+					{
+						Text:      "== My New Header ==",
+						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+		}
+		dump := mwdump.XMLDump{Pages: pages}
+		executor := test.FakePandocExecutor{}
+
+		renderer := newHTML(&executor)
+		errs := renderer.Setup(&dump, "/var/tmp")
+		assert.Nil(t, errs)
+		exists, err := Os.Exists(filepath)
+		assert.Nil(t, err)
+		assert.True(t, exists)
+	})
+}
+
+func TestHTMLRender(t *testing.T) {
 	t.Run("Commandline Arguments set correctly", func(t *testing.T) {
 		executor := test.FakePandocExecutor{}
 		renderer := newHTML(&executor)
@@ -98,8 +134,15 @@ func TestRender(t *testing.T) {
 			`, ""),
 		},
 		{
-			name:   "Increments all headers in page",
-			render: "<h1>Documentation</h1>",
+			name: "Increments all headers in page",
+			render: htmlWhitespaceRx.ReplaceAllString(`
+				<h1>H1</h1>
+				<h2>H2</h2>
+				<h3>H3</h3>
+				<h4>H4</h4>
+				<h5>H5</h5>
+				<h6>H6</h6>
+			`, ""),
 			expects: htmlWhitespaceRx.ReplaceAllString(`
 				<html>
 				  <head>
@@ -108,7 +151,12 @@ func TestRender(t *testing.T) {
 				  </head>
 				  <body>
 				    <h1 id="main_page">Main Page</h1>
-				    <h2>Documentation</h2>
+				    <h2>H1</h2>
+				    <h3>H2</h3>
+				    <h4>H3</h4>
+				    <h5>H4</h5>
+				    <h6>H5</h6>
+				    <h6>H6</h6>
 				  </body>
 				</html>
 			`, ""),
