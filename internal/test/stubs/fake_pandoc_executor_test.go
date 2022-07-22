@@ -10,7 +10,7 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 )
 
-func TestFakePandocExecutor(t *testing.T) {
+func TestFakePandocExecutorExecute(t *testing.T) {
 	t.Run("Records provided stdin", func(t *testing.T) {
 		stdin := strings.NewReader("abc")
 		cmd := pandoc.Cmd{}
@@ -41,5 +41,13 @@ func TestFakePandocExecutor(t *testing.T) {
 
 		assert.Nil(t, errs)
 		assert.Equal(t, "Hole is good music", out)
+	})
+}
+
+func TestFakePandocExecutorArgs(t *testing.T) {
+	t.Run("Returns Args when provided", func(t *testing.T) {
+		args := []string{"abc", "def"}
+		executor := FakePandocExecutor{args: args}
+		assert.Equal(t, args, executor.Args())
 	})
 }
