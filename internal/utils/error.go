@@ -14,12 +14,6 @@ func RmFileOn(file afero.File, err error) {
 	}
 }
 
-func PanicOn(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func LogWarnOn(err error) {
 	if err != nil {
 		logger.Warnf("Ignored Error: %s", err)

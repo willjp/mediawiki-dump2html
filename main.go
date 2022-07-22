@@ -9,7 +9,6 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	renderers "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
 
 	"github.com/spf13/afero"
@@ -21,14 +20,16 @@ func main() {
 	logger.SetLevel(logger.LvDebug)
 	outDir := "/home/will/out"
 	raw, err := Os.ReadFile("/home/will/dump.xml")
-	utils.PanicOn(err)
+	if err != nil {
+		panic(err)
+	}
 
 	_, err = appfs.AppFs.Stat(outDir)
 	if errors.Is(err, fs.ErrNotExist) {
-		err := appfs.AppFs.MkdirAll(outDir, 0755)
-		utils.PanicOn(err)
-	} else {
-		utils.PanicOn(err)
+		err = appfs.AppFs.MkdirAll(outDir, 0755)
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	var dump mwdump.XMLDump

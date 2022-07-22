@@ -51,7 +51,9 @@ func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []err
 
 		file, err := appfs.AppFs.Create(outPath)
 		defer file.Close()
-		utils.PanicOn(err)
+		if err != nil {
+			panic(err)
+		}
 
 		_, err = file.WriteString(rendered)
 		if err != nil {
