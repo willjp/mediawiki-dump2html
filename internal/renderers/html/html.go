@@ -3,6 +3,7 @@ package renderers
 import (
 	"fmt"
 	"net/url"
+	"path"
 	"regexp"
 	"strings"
 
@@ -37,8 +38,10 @@ func (html *HTML) Filename(pageTitle string) string {
 }
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
-func (html *HTML) Setup(dump *mwdump.XMLDump, outDir string) []error {
-	return RenderStylesheet(dump, outDir)
+func (this *HTML) Setup(dump *mwdump.XMLDump, outDir string) (errs []error) {
+	cssFile := path.Join(outDir, stylesheetName)
+	css := NewCSS(this.pandocExecutor)
+	return css.WriteCssFile(dump, cssFile)
 }
 
 func (this *HTML) Render(page *mwdump.Page) (render string, errs []error) {

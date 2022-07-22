@@ -3,7 +3,6 @@ package utils
 import (
 	"os"
 
-	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
 
@@ -23,7 +22,6 @@ func FileReplace(contents string, filepath string) (errs []error) {
 		}
 	}()
 
-	logger.Infof("Writing: %s\n", filepath)
 	_, err = file.WriteString(contents)
 	if err != nil {
 		RmFileOn(file, err)

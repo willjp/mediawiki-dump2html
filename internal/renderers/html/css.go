@@ -2,65 +2,45 @@ package renderers
 
 import (
 	"encoding/xml"
-	"os"
-	"path"
 	"strings"
 
 	"github.com/lithammer/dedent"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 
 	htmlElement "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/html"
 )
 
-// Writes CSS file that can be sourced in dumped HTML files.
-func RenderStylesheet(dump *mwdump.XMLDump, outDir string) []error {
-	if len(dump.Pages) < 1 {
-		return nil
-	}
+type CSS struct {
+	pandocExecutor interfaces.PandocExecutor
+}
 
-	cmd := PandocCommand()
-	css, errs := ExtractCss(&cmd, &dump.Pages[0])
+func NewCSS(pandocExecutor interfaces.PandocExecutor) CSS {
+	return CSS{pandocExecutor: pandocExecutor}
+}
+
+// Convenience method that Renders, and writes file, collecting errors.
+func (this *CSS) WriteCssFile(dump *mwdump.XMLDump, filepath string) []error {
+	render, errs := this.Render(dump)
 	if errs != nil {
 		return errs
 	}
-
-	cssPath := path.Join(outDir, stylesheetName)
-	file, err := os.Create(cssPath)
-	utils.PanicOn(err)
-	defer func() {
-		err := file.Close()
-		if err != nil {
-			errs = append(errs, err)
-		}
-	}()
-
-	logger.Infof("Writing: %s\n", cssPath)
-	_, err = file.WriteString(css)
-	if err != nil {
-		utils.RmFileOn(file, err)
-		errs = append(errs, err)
-		return errs
-	}
-	return nil
+	logger.Infof("Writing: %s\n", filepath)
+	return utils.FileReplace(render, filepath)
 }
 
-// Builds pandoc command to render HTML with CSS.
-func PandocCommand() pandoc.Cmd {
-	opts := pandoc.Opts{
-		From:       "mediawiki",
-		To:         "html",
-		Standalone: true,
+// Renders CSS stylesheet for page.
+func (this *CSS) Render(dump *mwdump.XMLDump) (render string, errs []error) {
+	if len(dump.Pages) < 1 {
+		return "", nil
 	}
-	cmd := opts.Command()
-	return cmd
-}
 
-// Executes pandoc command, and extracts CSS
-func ExtractCss(cmd *pandoc.Cmd, src *mwdump.Page) (string, []error) {
-	html, errs := cmd.Execute(strings.NewReader(src.LatestRevision().Text))
+	cmd := this.pandocCommand()
+	stdin := strings.NewReader(dump.Pages[0].LatestRevision().Text)
+	html, errs := this.pandocExecutor.Execute(&cmd, stdin)
 	if errs != nil {
 		return "", errs
 	}
@@ -71,5 +51,17 @@ func ExtractCss(cmd *pandoc.Cmd, src *mwdump.Page) (string, []error) {
 	if errs != nil {
 		return "", errs
 	}
+
 	return css, nil
+}
+
+// Builds pandoc command to render HTML with CSS.
+func (this *CSS) pandocCommand() pandoc.Cmd {
+	opts := pandoc.Opts{
+		From:       "mediawiki",
+		To:         "html",
+		Standalone: true,
+	}
+	cmd := opts.Command()
+	return cmd
 }
