@@ -1,13 +1,12 @@
 package utils
 
 import (
-	"os"
-
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
 
 var osCreate = func(path string) (interfaces.OsFile, error) {
-	return os.Create(path)
+	return appfs.AppFs.Create(path)
 }
 
 func FileReplace(contents string, filepath string) (errs []error) {

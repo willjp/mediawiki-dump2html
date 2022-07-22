@@ -11,6 +11,25 @@ import (
 	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
 )
 
+func TestCSSWriteCssFile(t *testing.T) {
+	t.Run("Writes extracted CSS to file", func(t *testing.T) {
+		executor := test.FakePandocExecutor{}
+		renderer := NewCSS(&executor)
+		pages := []mwdump.Page{
+			{
+				Title: "Main Page",
+				Revision: []mwdump.Revision{
+					{
+						Text:      "== My New Header ==",
+						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+		}
+		dump := mwdump.XMLDump{Pages: pages}
+		renderer.WriteCssFile(&dump, "/var/tmp/foo.css")
+	})
+}
 
 func TestCSSRender(t *testing.T) {
 	t.Run("Commandline Arguments set correctly", func(t *testing.T) {

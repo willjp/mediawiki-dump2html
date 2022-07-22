@@ -1,13 +1,12 @@
 package utils
 
 import (
-	"os"
-
 	"willpittman.net/x/logger"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
 
-var osRemove = os.Remove
+var osRemove = appfs.AppFs.Remove
 
 // file expects a os.File
 func RmFileOn(file interfaces.OsFile, err error) {

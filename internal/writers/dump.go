@@ -3,11 +3,11 @@ package writers
 import (
 	"errors"
 	"io/fs"
-	"os"
 	"path"
 	"time"
 
 	"willpittman.net/x/logger"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
@@ -31,7 +31,7 @@ func DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) 
 
 func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
 	var fileModified time.Time
-	stat, err := os.Stat(outPath)
+	stat, err := appfs.AppFs.Stat(outPath)
 	switch {
 	case err == nil:
 		fileModified = stat.ModTime()
@@ -49,7 +49,7 @@ func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []err
 			return errs
 		}
 
-		file, err := os.Create(outPath)
+		file, err := appfs.AppFs.Create(outPath)
 		defer file.Close()
 		utils.PanicOn(err)
 
