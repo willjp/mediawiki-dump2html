@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"os"
+
 	commands "willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli/commands"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
@@ -9,18 +11,13 @@ type ArgumentParser struct {
 	CliArgs []string
 }
 
-type RenderOpts struct {
-	XMLDump string
-	OutDir  string
-}
-
 func New() ArgumentParser {
-	return ArgumentParser{}
+	return ArgumentParser{CliArgs: os.Args}
 }
 
 func (this *ArgumentParser) Parse() interfaces.CliCommand {
 	shift := 0
-	opts := RenderOpts{}
+	opts := commands.BuildOpts{}
 	for i, arg := range this.CliArgs[1:] {
 		// skip N iterations, if flag consumes more than one param
 		if shift > 0 {
@@ -32,21 +29,21 @@ func (this *ArgumentParser) Parse() interfaces.CliCommand {
 		case "-h", "--help":
 			return &commands.ShowHelp{}
 		case "-i", "--input":
-			if len(this.CliArgs) <= i+1 {
+			if len(this.CliArgs) <= i+2 {
 				return &commands.InvalidArgs{}
 			}
-			opts.XMLDump = this.CliArgs[i+1]
+			opts.XMLDump = this.CliArgs[i+2]
 			shift += 1
 		case "-o", "--outdir":
-			if len(this.CliArgs) <= i+1 {
+			if len(this.CliArgs) <= i+2 {
 				return &commands.InvalidArgs{}
 			}
-			opts.OutDir = this.CliArgs[i+1]
+			opts.OutDir = this.CliArgs[i+2]
 			shift += 1
 		}
 	}
 	if opts.XMLDump != "" && opts.OutDir != "" {
-		return &commands.Build{}
+		return &commands.Build{Opts: opts}
 	}
 	return &commands.InvalidArgs{}
 }
