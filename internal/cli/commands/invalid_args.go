@@ -1,10 +1,13 @@
 package cli
 
-import "fmt"
+import (
+	"errors"
+)
+
+var InvalidArgsError = errors.New("[ERROR] invalid args")
 
 type InvalidArgs struct{}
 
 func (this *InvalidArgs) Call() error {
-	fmt.Println("invalid args")
-	return nil
+	return InvalidArgsError
 }

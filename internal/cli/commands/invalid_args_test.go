@@ -13,3 +13,9 @@ func TestInvalidArgsImplementsInterface(t *testing.T) {
 	}
 	assert.True(t, implementsInterface(&InvalidArgs{}))
 }
+
+func TestInvalidArgsReturnsError(t *testing.T) {
+	cmd := InvalidArgs{}
+	err := cmd.Call()
+	assert.Error(t, InvalidArgsError, err)
+}
