@@ -8,6 +8,7 @@ import (
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 	renderers "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
 
@@ -17,7 +18,7 @@ import (
 func main() {
 	// configuration
 	Os := afero.Afero{Fs: appfs.AppFs}
-	logger.SetLevel(logger.LvDebug)
+	log.Log.SetLevel(logger.LvDebug)
 	outDir := "/home/will/out"
 	raw, err := Os.ReadFile("/home/will/dump.xml")
 	if err != nil {
