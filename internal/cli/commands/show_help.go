@@ -3,15 +3,16 @@ package cli
 import (
 	"fmt"
 	"os"
-	"regexp"
+	"path"
+
+	"github.com/lithammer/dedent"
 )
 
 type ShowHelp struct{}
 
 func (this *ShowHelp) Call() error {
-	leadingWhitespaceRx := regexp.MustCompile(`(?m)(^\w+)`)
-	fmt.Printf(
-		leadingWhitespaceRx.ReplaceAllString(`
+	executable := path.Base(os.Args[0])
+	fmt.Printf(dedent.Dedent(`
 	%s [-i INPUT -o OUTDIR] [-h]
 
 	DESCRIPTION:
@@ -29,6 +30,6 @@ func (this *ShowHelp) Call() error {
 
 	EXAMPLES:
 	    %s -i dump.xml -o /var/tmp/website/  # convert dump.xml to statichtml in /var/tmp/website
-	`, ""), os.Args[0], os.Args[0])
+	`), executable, executable)
 	return nil
 }
