@@ -1,41 +1,20 @@
 package main
 
 import (
-	"encoding/xml"
-	"errors"
-	"io/fs"
+	"os"
 
 	"willpittman.net/x/logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
-	renderers "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
-
-	"github.com/spf13/afero"
 )
 
 func main() {
-	// configuration
-	Os := afero.Afero{Fs: appfs.AppFs}
 	log.Log.SetLevel(logger.LvDebug)
-	outDir := "/home/will/out"
-	raw, err := Os.ReadFile("/home/will/dump.xml")
+	cli := cli.New()
+	cmd := cli.Parse()
+	err := cmd.Call()
 	if err != nil {
-		panic(err)
+		log.Log.Error("[ERROR] error during build")
+		os.Exit(1)
 	}
-
-	_, err = appfs.AppFs.Stat(outDir)
-	if errors.Is(err, fs.ErrNotExist) {
-		err = appfs.AppFs.MkdirAll(outDir, 0755)
-	}
-	if err != nil {
-		panic(err)
-	}
-
-	var dump mwdump.XMLDump
-	xml.Unmarshal(raw, &dump)
-
-	renderer := renderers.New()
-	writers.DumpAll(&renderer, &dump, outDir)
 }
