@@ -6,15 +6,16 @@ import (
 	"path"
 	"time"
 
-	"willpittman.net/x/logger"
+	"github.com/spf13/afero"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
 func DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
-	renderer.Setup(dump, outDir)
+	errs = renderer.Setup(dump, outDir)
 
 	for _, page := range dump.Pages {
 		outPath := path.Join(outDir, renderer.Filename(page.Title))
@@ -22,7 +23,7 @@ func DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) 
 		if new_errs != nil {
 			errs = append(errs, new_errs...)
 			for _, err := range new_errs {
-				logger.Errorf("Error dumping '%s' -- %s", outPath, err)
+				log.Log.Errorf("Error dumping '%s' -- %s", outPath, err)
 			}
 		}
 	}
@@ -43,7 +44,7 @@ func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []err
 
 	revision := page.LatestRevision()
 	if revision.Timestamp.After(fileModified) {
-		logger.Infof("Writing: %s\n", outPath)
+		log.Log.Infof("Writing: %s", outPath)
 		rendered, errs := renderer.Render(page)
 		if errs != nil {
 			return errs
@@ -55,7 +56,7 @@ func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []err
 			panic(err)
 		}
 
-		_, err = file.WriteString(rendered)
+		_, err = writeFileString(file, rendered)
 		if err != nil {
 			utils.RmFileOn(file, err)
 			errs = append(errs, err)
@@ -63,4 +64,9 @@ func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []err
 		}
 	}
 	return nil
+}
+
+// test seam, writes a string to a file
+var writeFileString = func(file afero.File, s string) (ret int, err error) {
+	return file.WriteString(s)
 }

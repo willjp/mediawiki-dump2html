@@ -6,5 +6,9 @@ import (
 	"willpittman.net/x/logger"
 )
 
-// Seam so we can stub logger in tests
-var Log = logger.New(os.Stderr)
+var Log logger.Interface
+
+func init() {
+	logRaw := logger.New(os.Stderr)
+	Log = &logRaw
+}

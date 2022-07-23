@@ -10,7 +10,7 @@ import (
 
 func TestFakeRendererFilename(t *testing.T) {
 	renderer := FakeRenderer{}
-	assert.Equal(t, "filename", renderer.Filename(""))
+	assert.Equal(t, "my_page", renderer.Filename("my_page"))
 }
 
 func TestFakeRendererSetup(t *testing.T) {
