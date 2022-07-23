@@ -6,7 +6,7 @@ require (
 	github.com/lithammer/dedent v1.1.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/net v0.0.0-20220708220712-1185a9018129
-	willpittman.net/x/logger v0.0.0-20220626160113-0a530c28fc9d
+	willpittman.net/x/logger v0.0.0-20220730013354-ad78c2aa922d
 )
 
 require (
