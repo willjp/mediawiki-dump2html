@@ -6,6 +6,8 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 )
 
+// Executes a pandoc.Cmd
+// Implements interfaces.CmdExecutor
 type Executor struct {
 	cmd interfaces.CmdExecutor
 }

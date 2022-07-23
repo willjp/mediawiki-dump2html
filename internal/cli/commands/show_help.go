@@ -8,6 +8,8 @@ import (
 	"github.com/lithammer/dedent"
 )
 
+// Prints the help menu on the commandline
+// Concretion of interfaces.CliCommand
 type ShowHelp struct{}
 
 func (this *ShowHelp) Call() error {

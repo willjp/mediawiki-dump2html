@@ -14,8 +14,11 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
+// Writes output from a Renderer to disk
+// Implements interfaces.RenderWriter
 type RenderWriter struct{}
 
+// Write all pages from provided xmldump
 func (this *RenderWriter) DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
 	errs = renderer.Setup(dump, outDir)
 
@@ -32,6 +35,7 @@ func (this *RenderWriter) DumpAll(renderer interfaces.Renderer, dump *mwdump.XML
 	return nil
 }
 
+// Write a single page from an xmldump
 func (this *RenderWriter) Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
 	var fileModified time.Time
 	stat, err := appfs.AppFs.Stat(outPath)

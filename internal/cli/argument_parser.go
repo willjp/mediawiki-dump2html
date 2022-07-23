@@ -9,6 +9,7 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
 )
 
+// Chooses the interfaces.CliCommand that should be executed based on provided CLI arguments
 type ArgumentParser struct {
 	CliArgs []string
 }
@@ -17,6 +18,7 @@ func New() ArgumentParser {
 	return ArgumentParser{CliArgs: os.Args}
 }
 
+// Parses CLI arguments and chooses command to execute.
 func (this *ArgumentParser) Parse() interfaces.CliCommand {
 	shift := 0
 	opts := commands.BuildOpts{}

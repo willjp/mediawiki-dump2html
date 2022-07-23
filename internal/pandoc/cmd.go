@@ -18,7 +18,7 @@ func (this *Cmd) Args() []string {
 	return this.args
 }
 
-// Low-Level method to invoke pandoc on CLI (testable seam).
+// Executes pandoc on CLI
 func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
 	// record goroutine errors
 	wg := sync.WaitGroup{}

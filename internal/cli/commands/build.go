@@ -13,11 +13,14 @@ import (
 
 var BuildFailedError = errors.New("Build Failed")
 
+// Configuration for a build.
 type BuildOpts struct {
 	XMLDump string // path to xmldump
 	OutDir  string // directory to write statichtml files
 }
 
+// Builds statichtml from provided mediawiki dump.
+// Concretion of interfaces.CliCommand
 type Build struct {
 	Opts         BuildOpts
 	Renderer     interfaces.Renderer
@@ -36,6 +39,7 @@ func (this *Build) Call() (err error) {
 	return nil
 }
 
+// Reads and returns target XML dump.
 func (this *Build) readXml() []byte {
 	Os := afero.Afero{Fs: appfs.AppFs}
 	raw, err := Os.ReadFile(this.Opts.XMLDump)
@@ -45,6 +49,7 @@ func (this *Build) readXml() []byte {
 	return raw
 }
 
+// Parses raw XML dump
 func (this *Build) parseXml(raw []byte) *mwdump.XMLDump {
 	var dump mwdump.XMLDump
 	err := xml.Unmarshal(raw, &dump)
@@ -54,6 +59,7 @@ func (this *Build) parseXml(raw []byte) *mwdump.XMLDump {
 	return &dump
 }
 
+// Creates configured OutDir (to write statichtml files to).
 func (this *Build) createOutDir() {
 	_, err := appfs.AppFs.Stat(this.Opts.OutDir)
 	if errors.Is(err, fs.ErrNotExist) {

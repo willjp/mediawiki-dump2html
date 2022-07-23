@@ -1,6 +1,6 @@
 package interfaces
 
-// command pattern, for encapsulating commands set on commandline
+// All available commands have their own CliCommand.
 type CliCommand interface {
 	Call() error
 }
