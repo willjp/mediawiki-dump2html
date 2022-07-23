@@ -5,6 +5,8 @@ import (
 
 	commands "willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli/commands"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	html "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
 )
 
 type ArgumentParser struct {
@@ -43,7 +45,9 @@ func (this *ArgumentParser) Parse() interfaces.CliCommand {
 		}
 	}
 	if opts.XMLDump != "" && opts.OutDir != "" {
-		return &commands.Build{Opts: opts}
+		renderer := html.New()
+		writer := writers.RenderWriter{}
+		return &commands.Build{Opts: opts, Renderer: &renderer, RenderWriter: &writer}
 	}
 	return &commands.InvalidArgs{}
 }

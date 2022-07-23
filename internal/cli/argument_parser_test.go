@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	commands "willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli/commands"
+	html "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
 )
 
 func TestArgumentParser(t *testing.T) {
@@ -70,5 +71,13 @@ func TestArgumentParser(t *testing.T) {
 		cast := cmd.(*commands.Build)
 		assert.Equal(t, "dump.xml", cast.Opts.XMLDump)
 		assert.Equal(t, "/var/tmp/out", cast.Opts.OutDir)
+	})
+
+	t.Run("Build Command Receives Renderer", func(t *testing.T) {
+		parser := ArgumentParser{CliArgs: []string{"mw2html", "-i", "dump.xml", "-o", "/var/tmp/out"}}
+		cmd := parser.Parse()
+		cast := cmd.(*commands.Build)
+		expects := fmt.Sprintf("%T", &html.HTML{})
+		assert.Equal(t, expects, fmt.Sprintf("%T", cast.Renderer))
 	})
 }
