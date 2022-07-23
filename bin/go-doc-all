@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+for d in $(for f in $(find . -name '*.go') ; do echo $(dirname $(realpath --relative-to=$PWD $f)) ; done  | uniq) ; do
+    echo "// ------------------------------------------------- "
+    go doc -all "$d"
+done | bat -l go

@@ -15,3 +15,5 @@ coverage:
 coverage-report: coverage
 	go tool cover -html=.tmp/out.cov
 
+doc:
+	bin/go-doc-all
