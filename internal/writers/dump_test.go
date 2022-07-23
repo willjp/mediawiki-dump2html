@@ -10,6 +10,7 @@ import (
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 	stubs "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
 )
@@ -23,6 +24,14 @@ func samplePage(revDate time.Time, title string) mwdump.Page {
 			{Text: "== My New Header ==", Timestamp: revDate},
 		},
 	}
+}
+
+func TestRenderWriterImplementsInterface(t *testing.T) {
+	var implementsIface = func(iface interfaces.RenderWriter) bool {
+		return true
+	}
+	cmd := RenderWriter{}
+	assert.True(t, implementsIface(&cmd))
 }
 
 func TestDumpAll(t *testing.T) {
@@ -42,7 +51,8 @@ func TestDumpAll(t *testing.T) {
 		dump := mwdump.XMLDump{Pages: pages}
 		renderer := stubs.FakeRenderer{}
 		outDir := "/var/tmp"
-		errs := DumpAll(&renderer, &dump, outDir)
+		writer := RenderWriter{}
+		errs := writer.DumpAll(&renderer, &dump, outDir)
 		assert.Nil(t, errs)
 		assert.True(t, renderer.SetupCalled)
 	})
@@ -58,7 +68,8 @@ func TestDumpAll(t *testing.T) {
 		dump := mwdump.XMLDump{Pages: pages}
 		renderer := stubs.FakeRenderer{}
 		outDir := "/var/tmp"
-		errs := DumpAll(&renderer, &dump, outDir)
+		writer := RenderWriter{}
+		errs := writer.DumpAll(&renderer, &dump, outDir)
 		assert.Nil(t, errs)
 
 		exists, err = Os.Exists("/var/tmp/one")
@@ -77,7 +88,8 @@ func TestDumpAll(t *testing.T) {
 		dump := mwdump.XMLDump{Pages: pages}
 		renderer := stubs.FakeRenderer{RenderErrors: []error{ExpectedError}}
 		outDir := "/var/tmp"
-		errs := DumpAll(&renderer, &dump, outDir)
+		writer := RenderWriter{}
+		errs := writer.DumpAll(&renderer, &dump, outDir)
 		assert.Nil(t, errs)
 
 		stubLog := log.Log.(*logger.StubLogger)
@@ -104,7 +116,8 @@ func TestDump(t *testing.T) {
 		page := samplePage(time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC), "file")
 		outPath := "/var/tmp/file.txt"
 
-		Dump(&renderer, &page, outPath)
+		writer := RenderWriter{}
+		writer.Dump(&renderer, &page, outPath)
 		exists, err := Os.Exists(outPath)
 		assert.Nil(t, err)
 		assert.True(t, exists)
@@ -129,7 +142,8 @@ func TestDump(t *testing.T) {
 		renderer := stubs.FakeRenderer{}
 		page := samplePage(revDate, "file")
 
-		Dump(&renderer, &page, outPath)
+		writer := RenderWriter{}
+		writer.Dump(&renderer, &page, outPath)
 		finfo, err := Os.Stat(outPath)
 		assert.Nil(t, err)
 		assert.NotEqual(t, revDate, finfo.ModTime())
@@ -150,7 +164,8 @@ func TestDump(t *testing.T) {
 		renderer := stubs.FakeRenderer{}
 		page := samplePage(time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC), "file")
 
-		Dump(&renderer, &page, outPath)
+		writer := RenderWriter{}
+		writer.Dump(&renderer, &page, outPath)
 		finfo, err := Os.Stat(outPath)
 		assert.Nil(t, err)
 		assert.Equal(t, oldFinfo.ModTime(), finfo.ModTime())
@@ -170,7 +185,8 @@ func TestDump(t *testing.T) {
 		page := samplePage(time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC), "file")
 		outPath := "/var/tmp/file.txt"
 
-		errs := Dump(&renderer, &page, outPath)
+		writer := RenderWriter{}
+		errs := writer.Dump(&renderer, &page, outPath)
 		assert.Equal(t, 1, len(errs))
 		assert.Error(t, ExpectedError, errs[0])
 

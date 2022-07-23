@@ -14,12 +14,14 @@ import (
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
 
-func DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
+type RenderWriter struct{}
+
+func (this *RenderWriter) DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
 	errs = renderer.Setup(dump, outDir)
 
 	for _, page := range dump.Pages {
 		outPath := path.Join(outDir, renderer.Filename(page.Title))
-		new_errs := Dump(renderer, &page, outPath)
+		new_errs := this.Dump(renderer, &page, outPath)
 		if new_errs != nil {
 			errs = append(errs, new_errs...)
 			for _, err := range new_errs {
@@ -30,7 +32,7 @@ func DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) 
 	return nil
 }
 
-func Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
+func (this *RenderWriter) Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
 	var fileModified time.Time
 	stat, err := appfs.AppFs.Stat(outPath)
 	switch {
