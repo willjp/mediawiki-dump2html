@@ -13,3 +13,9 @@ func TestShowHelpImplementsInterface(t *testing.T) {
 	}
 	assert.True(t, implementsInterface(&ShowHelp{}))
 }
+
+func TestShowHelpCall(t *testing.T) {
+	cmd := ShowHelp{}
+	err := cmd.Call()
+	assert.Nil(t, err)
+}
