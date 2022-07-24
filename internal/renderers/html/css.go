@@ -6,9 +6,9 @@ import (
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
-	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
@@ -29,7 +29,7 @@ func (this *CSS) WriteCssFile(dump *mwdump.XMLDump, filepath string) []error {
 	if errs != nil {
 		return errs
 	}
-	logger.Infof("Writing: %s\n", filepath)
+	log.Log.Infof("Writing: %s\n", filepath)
 	return utils.FileReplace(render, filepath)
 }
 

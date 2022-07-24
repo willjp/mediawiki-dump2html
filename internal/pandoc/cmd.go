@@ -4,8 +4,8 @@ import (
 	"io"
 	"sync"
 
-	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 )
 
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.
@@ -104,7 +104,7 @@ func (this *Cmd) start(stdout io.Reader, stderr io.Reader) (render string, errs 
 
 	err = this.Wait()
 	if err != nil {
-		logger.Debugf("STDERR:\n%s", errAll)
+		log.Log.Debugf("STDERR:\n%s", errAll)
 		errs = append(errs, err)
 	}
 	return string(outAll), errs
