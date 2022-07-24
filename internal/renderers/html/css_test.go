@@ -70,9 +70,8 @@ func TestCSSRender(t *testing.T) {
 			},
 		}
 		dump := mwdump.XMLDump{Pages: pages}
-		_, err := renderer.Render(&dump)
+		renderer.Render(&dump)
 		expects := []string{"pandoc", "-f", "mediawiki", "-t", "html", "--standalone"}
-		assert.Nil(t, err)
 		assert.Equal(t, expects, executor.Args())
 	})
 
@@ -100,8 +99,7 @@ func TestCSSRender(t *testing.T) {
 			},
 		}
 		dump := mwdump.XMLDump{Pages: pages}
-		_, errs := renderer.Render(&dump)
-		assert.Nil(t, errs)
+		renderer.Render(&dump)
 		out, err := io.ReadAll(executor.Stdin)
 		assert.Nil(t, err)
 		assert.Equal(t, []byte("== First Page =="), []byte(out))
@@ -163,5 +161,39 @@ func TestCSSRender(t *testing.T) {
 		render, errs := renderer.Render(&dump)
 		assert.Nil(t, errs)
 		assert.Equal(t, pandocCss, render)
+	})
+
+	t.Run("Returns UnableToFindCssError when could not find style tag within html head", func(t *testing.T) {
+		pandocHtml := htmlWhitespaceRx.ReplaceAllString(`
+			<!DOCTYPE html>
+			<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+			<head>
+			  <meta charset="utf-8" />
+			  <meta name="generator" content="pandoc" />
+			  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+			  <title>-</title>
+			</head>
+			<body>
+			Hello world
+			</body>
+			</html>
+		`, "")
+		executor := test.FakePandocExecutor{Render: pandocHtml}
+		renderer := NewCSS(&executor)
+		pages := []mwdump.Page{
+			{
+				Title: "First Page",
+				Revision: []mwdump.Revision{
+					{
+						Text:      "== First Page ==",
+						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+		}
+		dump := mwdump.XMLDump{Pages: pages}
+		_, errs := renderer.Render(&dump)
+		assert.Equal(t, 1, len(errs))
+		assert.Error(t, UnableToFindCssError, errs[0])
 	})
 }

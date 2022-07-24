@@ -63,9 +63,27 @@ func TestHTMLSetup(t *testing.T) {
 				},
 			},
 		}
+		pandocHtml := `
+			<!DOCTYPE html>
+			<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+			<head>
+			  <meta charset="utf-8" />
+			  <meta name="generator" content="pandoc" />
+			  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+			  <title>-</title>
+			  <style>
+			  html {
+			    line-height: 1.5;
+			    font-family: Georgia, serif;
+			  }
+			  </style>
+			</head>
+			</html>
+		`
 		dump := mwdump.XMLDump{Pages: pages}
-		executor := test.FakePandocExecutor{}
-
+		executor := test.FakePandocExecutor{
+			Render: pandocHtml,
+		}
 		renderer := newHTML(&executor)
 		errs := renderer.Setup(&dump, "/var/tmp")
 		assert.Nil(t, errs)

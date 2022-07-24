@@ -1,18 +1,19 @@
 package renderers
 
 import (
-	"encoding/xml"
+	"errors"
 	"strings"
 
-	"github.com/lithammer/dedent"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	"willpittman.net/x/logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
-
-	htmlElement "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/html"
 )
+
+var UnableToFindCssError = errors.New("Unable to locate stylesheet within html")
 
 type CSS struct {
 	pandocExecutor interfaces.PandocExecutor
@@ -40,19 +41,37 @@ func (this *CSS) Render(dump *mwdump.XMLDump) (render string, errs []error) {
 
 	cmd := this.pandocCommand()
 	stdin := strings.NewReader(dump.Pages[0].LatestRevision().Text)
-	html, errs := this.pandocExecutor.Execute(&cmd, stdin)
+	rawHtml, errs := this.pandocExecutor.Execute(&cmd, stdin)
 	if errs != nil {
 		return "", errs
 	}
 
-	var htmlNode htmlElement.Html
-	xml.Unmarshal([]byte(html), &htmlNode)
-	css := dedent.Dedent(htmlNode.Head.Style)
-	if errs != nil {
-		return "", errs
+	// extract css from parsed html
+	css, err := this.extractCssFromHtml(rawHtml)
+	if err != nil {
+		return "", []error{err}
 	}
-
 	return css, nil
+}
+
+// extract CSS from first html.head.style element
+func (this *CSS) extractCssFromHtml(rawHtml string) (render string, err error) {
+	node, err := html.Parse(strings.NewReader(rawHtml))
+	if err != nil {
+		return "", err
+	}
+	cssNode := utils.FindFirstChild(node, func(node *html.Node) *html.Node {
+		return utils.HasParentHeirarchy(node, []atom.Atom{atom.Head, atom.Style})
+	})
+	if cssNode == nil {
+		return "", UnableToFindCssError
+	}
+	for child := cssNode.FirstChild; child != nil; child = child.NextSibling {
+		if child.Type == html.TextNode {
+			return child.Data, nil
+		}
+	}
+	return "", UnableToFindCssError
 }
 
 // Builds pandoc command to render HTML with CSS.
