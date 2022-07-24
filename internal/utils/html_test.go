@@ -12,7 +12,7 @@ import (
 
 var htmlWhitespaceRx = regexp.MustCompile(`(?m)(^\s+|\n)`)
 
-func TestFindFirst(t *testing.T) {
+func TestFindFirstChild(t *testing.T) {
 	rawHtml := htmlWhitespaceRx.ReplaceAllString(`
 	<html>
 	  <head>
@@ -32,7 +32,7 @@ func TestFindFirst(t *testing.T) {
 	</html>
 	`, "")
 	node, _ := html.Parse(strings.NewReader(rawHtml))
-	result := FindFirst(node, func(node *html.Node) *html.Node {
+	result := FindFirstChild(node, func(node *html.Node) *html.Node {
 		// CSS ex. body + h2
 		if node.DataAtom != atom.H2 {
 			return nil
@@ -47,4 +47,24 @@ func TestFindFirst(t *testing.T) {
 	})
 	expects := html.Attribute{Key: "id", Val: "foo"}
 	assert.Equal(t, expects, result.Attr[0])
+}
+
+func TestParentHeirarchy(t *testing.T) {
+	rawHtml := htmlWhitespaceRx.ReplaceAllString(`
+	<html>
+	  <head>
+	    <title>Main Page</title>
+	    <link rel="stylesheet" href="style.css"/>
+	  </head>
+	</html>
+	`, "")
+	node, _ := html.Parse(strings.NewReader(rawHtml))
+	target := node.FirstChild.FirstChild
+	heirarchy := ParentHeirarchy(target)
+	expects := []*html.Node{
+		target,
+		node.FirstChild,
+		node,
+	}
+	assert.Equal(t, expects, heirarchy)
 }
