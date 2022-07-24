@@ -2,6 +2,7 @@ package utils
 
 import (
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 // Returns the first html node returned by the provided visitor.
@@ -22,6 +23,7 @@ func FindFirstChild(node *html.Node, visitor func(node *html.Node) *html.Node) *
 }
 
 // Returns of provided node's parents (including provided node).
+// Ex. []*html.Node{this, this.Parent, this.Parent.Parent, ...}
 func ParentHeirarchy(node *html.Node) (nodes []*html.Node) {
 	if node != nil {
 		nodes = append(nodes, node)
@@ -31,4 +33,28 @@ func ParentHeirarchy(node *html.Node) (nodes []*html.Node) {
 		nodes = append(nodes, parent_nodes...)
 	}
 	return nodes
+}
+
+// Creates a lambda function that returns node, if it's parent heirarchy matches provided.
+// Ex. HasParentHeirarchy(node, []atom.Atom{Atom.Head, Atom.Style})
+func HasParentHeirarchy(node *html.Node, heirarchy []atom.Atom) *html.Node {
+	parents := ParentHeirarchy(node)
+	if parents == nil {
+		return nil
+	}
+	if len(parents) < len(heirarchy) {
+		return nil
+	}
+	parentAtoms := Map(
+		parents[:len(heirarchy)],
+		func(node *html.Node) atom.Atom {
+			return node.DataAtom
+		},
+	)
+	for i, parentAtom := range parentAtoms {
+		if parentAtom != heirarchy[len(heirarchy)-i-1] {
+			return nil
+		}
+	}
+	return node
 }
