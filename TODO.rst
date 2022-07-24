@@ -13,17 +13,15 @@ Bugfixes
    instead of using the file modified date. Pages may be written to mediawiki,
    between the time a dump is created, and program is run. (so we could miss pages)
 
-* `internal/elements/html` should not exist. HTML cannot be parsed by XML.
-
 * `renderers.HTML` pandoc's produced CSS is tied to the rendered page.
-  if we don't want to use standalone for each page, we'll need to create a dummy page to render with most syntax.
+  if we don't want to use standalone for each page, we'll need to create a dummy page with the elements we want styled.
 
 
 Features
 --------
 
-* `general`
-  now that we have a direction, write tests!
+* `writers.DumpAll()`
+   page rendering could easily be asynchronous
 
 * `renderers.HTML`
   index headers on each page to JSON obj, and write simple javascript search page.
@@ -38,5 +36,3 @@ Features
   rendered rst has directive `.. _first_title`
   I'm guessing this should be replaced with the actual page title.
 
-* `writers.DumpAll()`
-   page rendering could easily be asynchronous
