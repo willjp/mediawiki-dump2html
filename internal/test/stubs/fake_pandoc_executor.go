@@ -17,7 +17,7 @@ type FakePandocExecutor struct {
 
 //
 // Reads provided `stdin` into `this.Stdin`, exposing a seam to test the text that was written to it.
-func (this *FakePandocExecutor) Execute(cmd interfaces.CmdExecutor, stdin io.Reader) (render string, errs []error) {
+func (this *FakePandocExecutor) Execute(cmd interfaces.ExecCmdExecutor, stdin io.Reader) (render string, errs []error) {
 	this.args = cmd.Args()
 	this.Stdin = bytes.NewBuffer(nil)
 	conts, err := io.ReadAll(stdin)

@@ -9,10 +9,10 @@ import (
 // Executes a pandoc.Cmd
 // Implements interfaces.CmdExecutor
 type Executor struct {
-	cmd interfaces.CmdExecutor
+	cmd interfaces.ExecCmdExecutor
 }
 
-func (this *Executor) Execute(cmd interfaces.CmdExecutor, stdin io.Reader) (render string, errs []error) {
+func (this *Executor) Execute(cmd interfaces.ExecCmdExecutor, stdin io.Reader) (render string, errs []error) {
 	this.cmd = cmd
 	return cmd.Execute(stdin)
 }

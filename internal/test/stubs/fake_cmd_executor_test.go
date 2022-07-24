@@ -11,7 +11,7 @@ import (
 
 func TestFakeCmd(t *testing.T) {
 	t.Run("Implements CmdExecutor", func(t *testing.T) {
-		var implementsIface = func(iface interfaces.CmdExecutor) bool {
+		var implementsIface = func(iface interfaces.ExecCmdExecutor) bool {
 			return true
 		}
 		cmd := FakeCmd{}

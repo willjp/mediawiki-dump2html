@@ -6,6 +6,6 @@ import (
 
 // Executes a pandoc.Cmd
 type PandocExecutor interface {
-	Execute(cmd CmdExecutor, stdin io.Reader) (render string, errs []error)
+	Execute(cmd ExecCmdExecutor, stdin io.Reader) (render string, errs []error)
 	Args() []string
 }
