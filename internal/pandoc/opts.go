@@ -5,14 +5,24 @@ import "os/exec"
 // Struct representing a pandoc command.
 // (primarily intended for format conversions).
 type Opts struct {
-	From       string
-	To         string
-	Standalone bool
+	From       string // -f mediawiki
+	To         string // -t html
+	Template   string // --template=highlighting-css.template
+	Standalone bool   // --standalone
 }
 
 // Commandline Arguments for Pandoc
 func (this *Opts) args() []string {
-	args := []string{"-f", this.From, "-t", this.To}
+	args := []string{}
+	if this.From != "" {
+		args = append(args, "-f", this.From)
+	}
+	if this.To != "" {
+		args = append(args, "-t", this.To)
+	}
+	if this.Template != "" {
+		args = append(args, "--template="+this.Template)
+	}
 	if this.Standalone == true {
 		args = append(args, "--standalone")
 	}

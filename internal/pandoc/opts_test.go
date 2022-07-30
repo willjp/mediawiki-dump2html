@@ -22,6 +22,11 @@ func TestOpts(t *testing.T) {
 			opts:    Opts{From: "mediawiki", To: "html", Standalone: true},
 			expects: []string{"pandoc", "-f", "mediawiki", "-t", "html", "--standalone"},
 		},
+		{
+			test:    "Command() parses 'Template' as params '--template=TEMPLATE'",
+			opts:    Opts{Template: "/foo/bar/baz.template"},
+			expects: []string{"pandoc", "--template=/foo/bar/baz.template"},
+		},
 	}
 	for _, tcase := range tcases {
 		cmd := tcase.opts.Command()
