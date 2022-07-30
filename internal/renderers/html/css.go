@@ -8,7 +8,6 @@ import (
 	"golang.org/x/net/html/atom"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
@@ -22,16 +21,6 @@ type CSS struct {
 
 func NewCSS(pandocExecutor interfaces.PandocExecutor) CSS {
 	return CSS{pandocExecutor: pandocExecutor}
-}
-
-// Convenience method that Renders, and writes file, collecting errors.
-func (this *CSS) WriteCssFile(dump *mwdump.XMLDump, filepath string) []error {
-	render, errs := this.Render(dump)
-	if errs != nil {
-		return errs
-	}
-	log.Log.Infof("Writing: %s\n", filepath)
-	return utils.FileReplace(render, filepath)
 }
 
 // Renders CSS stylesheet for page.

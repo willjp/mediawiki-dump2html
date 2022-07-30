@@ -6,53 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
 )
-
-func TestCSSWriteCssFile(t *testing.T) {
-	appfs.AppFs = afero.NewMemMapFs()
-	Os := afero.Afero{Fs: appfs.AppFs}
-	t.Run("Writes extracted CSS to file", func(t *testing.T) {
-		pandocCss := htmlWhitespaceRx.ReplaceAllString(`
-			html {
-			  line-height: 1.5;
-			}
-		`, "")
-		pandocHtml := fmt.Sprintf(htmlWhitespaceRx.ReplaceAllString(`
-			<!DOCTYPE html>
-			<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
-			<head>
-			  <style>
-			  %s
-			  </style>
-			</head>
-			</html>
-		`, ""), pandocCss)
-		executor := test.FakePandocExecutor{Render: pandocHtml}
-		renderer := NewCSS(&executor)
-		pages := []mwdump.Page{
-			{
-				Title: "Main Page",
-				Revision: []mwdump.Revision{
-					{
-						Text:      "== My New Header ==",
-						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
-					},
-				},
-			},
-		}
-		dump := mwdump.XMLDump{Pages: pages}
-		renderer.WriteCssFile(&dump, "/var/tmp/foo.css")
-
-		out, err := Os.ReadFile("/var/tmp/foo.css")
-		assert.Nil(t, err)
-		assert.Equal(t, []byte(pandocCss), out)
-	})
-}
 
 func TestCSSRender(t *testing.T) {
 	t.Run("Commandline Arguments set correctly", func(t *testing.T) {

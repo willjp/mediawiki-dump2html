@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/html/atom"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
 )
@@ -39,9 +40,23 @@ func (html *HTML) Filename(pageTitle string) string {
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
 func (this *HTML) Setup(dump *mwdump.XMLDump, outDir string) (errs []error) {
+	cssRenderer := NewCSS(this.pandocExecutor)
+	css, errs := cssRenderer.Render(dump)
+	if errs != nil {
+		return errs
+	}
+
+	highlightRenderer := NewHighlightCSS(this.pandocExecutor)
+	highlightCss, errs := highlightRenderer.Render()
+	if errs != nil {
+		return errs
+	}
+
+	combinedCss := fmt.Sprintf("%s\n%s", css, highlightCss)
 	cssFile := path.Join(outDir, stylesheetName)
-	css := NewCSS(this.pandocExecutor)
-	return css.WriteCssFile(dump, cssFile)
+	log.Log.Infof("Writing: %s\n", cssFile)
+	errs = utils.FileReplace(combinedCss, cssFile)
+	return errs
 }
 
 func (this *HTML) Render(page *mwdump.Page) (render string, errs []error) {
