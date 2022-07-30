@@ -15,6 +15,7 @@ import (
 
 var UnableToFindCssError = errors.New("Unable to locate stylesheet within html")
 
+// Renders pandoc's CSS stylesheet
 type CSS struct {
 	pandocExecutor interfaces.PandocExecutor
 }
