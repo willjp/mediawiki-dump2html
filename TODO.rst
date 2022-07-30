@@ -9,10 +9,6 @@ Cleanups
 Bugfixes
 --------
 
-* `internal/writers/dump` should read a modified timestamp written in HTML meta tags,
-   instead of using the file modified date. Pages may be written to mediawiki,
-   between the time a dump is created, and program is run. (so we could miss pages)
-
 
 Features
 --------
