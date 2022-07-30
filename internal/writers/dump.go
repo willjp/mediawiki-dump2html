@@ -1,12 +1,12 @@
 package writers
 
 import (
-	"errors"
-	"io/fs"
 	"path"
 	"time"
 
 	"github.com/spf13/afero"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
@@ -35,21 +35,12 @@ func (this *RenderWriter) DumpAll(renderer interfaces.Renderer, dump *mwdump.XML
 	return nil
 }
 
-// Write a single page from an xmldump
-func (this *RenderWriter) Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
-	var fileModified time.Time
-	stat, err := appfs.AppFs.Stat(outPath)
-	switch {
-	case err == nil:
-		fileModified = stat.ModTime()
-	case errors.Is(err, fs.ErrNotExist):
-		fileModified = time.Unix(0, 0)
-	default:
-		panic(err)
-	}
-
+// Write a single page from an xmldump if it's revision timestamp is newer than the one on disk.
+// If page does not exist, renders a new page.
+func (this *RenderWriter) Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) (errs []error) {
+	renderedRevisionDate := this.renderDate(outPath)
 	revision := page.LatestRevision()
-	if revision.Timestamp.After(fileModified) {
+	if revision.Timestamp.After(renderedRevisionDate) {
 		log.Log.Infof("Writing: %s", outPath)
 		rendered, errs := renderer.Render(page)
 		if errs != nil {
@@ -68,8 +59,40 @@ func (this *RenderWriter) Dump(renderer interfaces.Renderer, page *mwdump.Page, 
 			errs = append(errs, err)
 			return errs
 		}
+	} else {
+		log.Log.Infof("Skipping Up To Date: %s", outPath)
 	}
 	return nil
+}
+
+// Get the mediawiki published date for a rendered html file.
+// Returns unix epoch if file doesn't exist, or any error encountered.
+func (this *RenderWriter) renderDate(filepath string) (revisionDate time.Time) {
+	unixEpoch := time.Unix(0, 0)
+	Os := afero.Afero{Fs: appfs.AppFs}
+	exists, _ := Os.Exists(filepath)
+	if !exists {
+		return unixEpoch
+	}
+
+	file, _ := Os.Open(filepath)
+	defer file.Close()
+	node, _ := html.Parse(file)
+	metaNode := utils.FindFirstChild(node, func(node *html.Node) *html.Node {
+		return utils.HasParentHeirarchy(node, []atom.Atom{atom.Head, atom.Meta})
+	})
+	if metaNode != nil {
+		for _, attr := range metaNode.Attr {
+			if attr.Key != "content" {
+				continue
+			}
+			revisionDate, err := time.Parse(time.RFC3339, attr.Val)
+			if err == nil {
+				return revisionDate
+			}
+		}
+	}
+	return unixEpoch
 }
 
 // test seam, writes a string to a file

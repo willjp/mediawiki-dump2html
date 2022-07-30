@@ -158,11 +158,28 @@ func TestDump(t *testing.T) {
 		outPath := "/var/tmp/file.txt"
 		Fs := appfs.AppFs
 		Os := afero.Afero{Fs: Fs}
-		Os.WriteFile(outPath, []byte("abc"), 0644)
+
+		// write page with a 'dateSubmitted' that matches page being rendered
+		renderedPage := `
+			<html>
+			  <head>
+			    <title>Main Page</title>
+			    <link rel="stylesheet" href="style.css"/>
+			    <meta name="dateSubmitted" content="2022-07-30T13:00:00Z"/>
+			  </head>
+			  <body>
+			    <h1 id="main_page">Main Page</h1>
+			    <a href="another_page.html">Another Page</a>
+			  </body>
+			</html>
+			`
+		Os.WriteFile(outPath, []byte(renderedPage), 0644)
 		oldFinfo, err := Os.Stat(outPath)
 
+		// page to be rendered has date that matches render on disk
 		renderer := stubs.FakeRenderer{}
-		page := samplePage(time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC), "file")
+		revisionDate := time.Date(2022, 7, 30, 13, 0, 0, 0, time.UTC)
+		page := samplePage(revisionDate, "file")
 
 		writer := RenderWriter{}
 		writer.Dump(&renderer, &page, outPath)
@@ -171,7 +188,8 @@ func TestDump(t *testing.T) {
 		assert.Equal(t, oldFinfo.ModTime(), finfo.ModTime())
 
 		stubLog := log.Log.(*logger.StubLogger)
-		assert.Equal(t, 0, len(stubLog.InfoMsgs))
+		assert.Equal(t, 1, len(stubLog.InfoMsgs))
+		assert.Equal(t, "Skipping Up To Date: /var/tmp/file.txt", stubLog.InfoMsgs[0])
 	})
 
 	t.Run("Removes file if failure during write", func(t *testing.T) {
