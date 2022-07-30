@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 
-for d in $(for f in $(find . -name '*.go') ; do echo $(dirname $(realpath --relative-to=$PWD $f)) ; done  | uniq) ; do
-    echo "// ------------------------------------------------- "
-    go doc -all "$d"
-done | bat -l go
+verify_dependencies() {
+    if ! which bat 2>&1 > /dev/null ; then
+        echo
+        echo "[ERROR] please install bat. https://github.com/sharkdp/bat"
+        echo
+        exit 1
+    fi
+}
+
+list_package_dirs() {
+    for f in $(find . -name '*.go') ; do
+        echo $(dirname $(realpath --relative-to=$PWD "$f"))
+    done  | uniq
+}
+
+show_all_godocs() {
+    for d in $(list_package_dirs) ; do
+        echo "// ------------------------------------------------- "
+        go doc -all "$d"
+    done | bat -l go
+}
+
+verify_dependencies
+show_all_godocs
