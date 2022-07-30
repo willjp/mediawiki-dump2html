@@ -6,6 +6,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
@@ -115,6 +116,7 @@ func (this *HTML) adjust(node *html.Node, page *mwdump.Page) (*html.Node, error)
 //
 //    - Links stylesheet
 //    - Sets Page Title.
+//    - Adds meta 'dateSubmitted' tag (when the rendered page was published in mediawiki)
 func (this *HTML) adjustHeadNode(node *html.Node, page *mwdump.Page) *html.Node {
 	if node.Type != html.ElementNode {
 		return node
@@ -128,7 +130,6 @@ func (this *HTML) adjustHeadNode(node *html.Node, page *mwdump.Page) *html.Node 
 		Data:      page.Title,
 		Namespace: node.Namespace,
 	}
-
 	title := html.Node{
 		Type:       html.ElementNode,
 		DataAtom:   atom.Title,
@@ -149,8 +150,21 @@ func (this *HTML) adjustHeadNode(node *html.Node, page *mwdump.Page) *html.Node 
 		},
 	}
 
+	lastModified := page.LatestRevision().Timestamp.Format(time.RFC3339)
+	dateSubmitted := html.Node{
+		Type:      html.ElementNode,
+		DataAtom:  atom.Meta,
+		Data:      "meta",
+		Namespace: node.Namespace,
+		Attr: []html.Attribute{
+			{Namespace: node.Namespace, Key: "name", Val: "dateSubmitted"},
+			{Namespace: node.Namespace, Key: "content", Val: lastModified},
+		},
+	}
+
 	node.AppendChild(&title)
 	node.AppendChild(&linkStyle)
+	node.AppendChild(&dateSubmitted)
 	return node
 }
 

@@ -144,6 +144,7 @@ func TestHTMLRender(t *testing.T) {
 				  <head>
 				    <title>Main Page</title>
 				    <link rel="stylesheet" href="style.css"/>
+				    <meta name="dateSubmitted" content="2022-07-30T13:00:00Z"/>
 				  </head>
 				  <body>
 				    <h1 id="main_page">Main Page</h1>
@@ -166,6 +167,7 @@ func TestHTMLRender(t *testing.T) {
 				  <head>
 				    <title>Main Page</title>
 				    <link rel="stylesheet" href="style.css"/>
+				    <meta name="dateSubmitted" content="2022-07-30T13:00:00Z"/>
 				  </head>
 				  <body>
 				    <h1 id="main_page">Main Page</h1>
@@ -187,6 +189,7 @@ func TestHTMLRender(t *testing.T) {
 				  <head>
 				    <title>Main Page</title>
 				    <link rel="stylesheet" href="style.css"/>
+				    <meta name="dateSubmitted" content="2022-07-30T13:00:00Z"/>
 				  </head>
 				  <body>
 				    <h1 id="main_page">Main Page</h1>
@@ -203,6 +206,7 @@ func TestHTMLRender(t *testing.T) {
 				  <head>
 				    <title>Main Page</title>
 				    <link rel="stylesheet" href="style.css"/>
+				    <meta name="dateSubmitted" content="2022-07-30T13:00:00Z"/>
 				  </head>
 				  <body>
 				    <h1 id="main_page">Main Page</h1>
@@ -216,7 +220,7 @@ func TestHTMLRender(t *testing.T) {
 		t.Run(tcase.name, func(t *testing.T) {
 			page := mwdump.Page{
 				Title:    "Main Page",
-				Revision: []mwdump.Revision{{}},
+				Revision: []mwdump.Revision{{Timestamp: time.Date(2022, 7, 30, 13, 0, 0, 0, time.UTC)}},
 			}
 			executor := test.FakePandocExecutor{Render: tcase.render}
 			renderer := newHTML(&executor)
