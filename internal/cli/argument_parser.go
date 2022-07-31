@@ -48,8 +48,8 @@ func (this *ArgumentParser) Parse() interfaces.CliCommand {
 	}
 	if opts.XMLDump != "" && opts.OutDir != "" {
 		renderer := html.New()
-		writer := writers.RenderWriter{}
-		return &commands.Build{Opts: opts, Renderer: &renderer, RenderWriter: &writer}
+		writer := writers.NewAsyncRenderWriter(0)
+		return &commands.Build{Opts: opts, Renderer: &renderer, RenderWriter: writer}
 	}
 	return &commands.InvalidArgs{}
 }
