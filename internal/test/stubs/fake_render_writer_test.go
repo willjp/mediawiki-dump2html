@@ -12,7 +12,7 @@ import (
 func samplePages() []mwdump.Page {
 	page := mwdump.Page{
 		Title: "file",
-		Revision: []mwdump.Revision{
+		Revisions: []mwdump.Revision{
 			{Text: "== My New Header ==", Timestamp: time.Now()},
 		},
 	}

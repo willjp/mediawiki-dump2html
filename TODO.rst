@@ -5,7 +5,6 @@ TODO
 Cleanups
 --------
 
-* page.Revision -- add 's', this is plural
 
 Bugfixes
 --------

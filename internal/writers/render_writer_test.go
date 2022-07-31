@@ -20,7 +20,7 @@ var ExpectedError = errors.New("Expected")
 func samplePage(revDate time.Time, title string) mwdump.Page {
 	return mwdump.Page{
 		Title: title,
-		Revision: []mwdump.Revision{
+		Revisions: []mwdump.Revision{
 			{Text: "== My New Header ==", Timestamp: revDate},
 		},
 	}

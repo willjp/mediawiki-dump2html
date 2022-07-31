@@ -48,7 +48,7 @@ func TestPageUnmarshall(t *testing.T) {
 	xml.Unmarshal([]byte(raw), &page)
 
 	assert.Equal(t, "Main Page", page.Title)
-	assert.Equal(t, 2, len(page.Revision))
+	assert.Equal(t, 2, len(page.Revisions))
 }
 
 func TestLatestRevision(t *testing.T) {
@@ -89,8 +89,8 @@ func TestLatestRevision(t *testing.T) {
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
 			page := Page{
-				Title:    "Main Page",
-				Revision: tcase.revisions,
+				Title:     "Main Page",
+				Revisions: tcase.revisions,
 			}
 			latest := page.LatestRevision()
 			assert.Equal(t, tcase.expectedText, latest.Text)

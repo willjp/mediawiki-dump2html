@@ -25,8 +25,8 @@ func TestPageConsumer(t *testing.T) {
 			WaitGroup:  &wg,
 		}
 		page := mwdump.Page{
-			Title:    "file",
-			Revision: []mwdump.Revision{{Text: "== My New Header ==", Timestamp: time.Now()}},
+			Title:     "file",
+			Revisions: []mwdump.Revision{{Text: "== My New Header ==", Timestamp: time.Now()}},
 		}
 		pageCh <- page
 		close(pageCh)
@@ -50,8 +50,8 @@ func TestPageConsumer(t *testing.T) {
 			WaitGroup:  &wg,
 		}
 		page := mwdump.Page{
-			Title:    "file",
-			Revision: []mwdump.Revision{{Text: "== My New Header ==", Timestamp: time.Now()}},
+			Title:     "file",
+			Revisions: []mwdump.Revision{{Text: "== My New Header ==", Timestamp: time.Now()}},
 		}
 		pageCh <- page
 		close(pageCh)
@@ -78,8 +78,8 @@ func TestPageConsumer(t *testing.T) {
 			WaitGroup:  &wg,
 		}
 		page := mwdump.Page{
-			Title:    "file",
-			Revision: []mwdump.Revision{{Text: "== My New Header ==", Timestamp: time.Now()}},
+			Title:     "file",
+			Revisions: []mwdump.Revision{{Text: "== My New Header ==", Timestamp: time.Now()}},
 		}
 		pageCh <- page
 		close(pageCh)

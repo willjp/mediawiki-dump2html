@@ -13,7 +13,7 @@ func TestPageProducer(t *testing.T) {
 	samplePage := func(title string) mwdump.Page {
 		return mwdump.Page{
 			Title: title,
-			Revision: []mwdump.Revision{
+			Revisions: []mwdump.Revision{
 				{Text: "== My New Header ==", Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC)},
 			},
 		}

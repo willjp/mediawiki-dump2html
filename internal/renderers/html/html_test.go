@@ -55,7 +55,7 @@ func TestHTMLSetup(t *testing.T) {
 		pages := []mwdump.Page{
 			{
 				Title: "main_page",
-				Revision: []mwdump.Revision{
+				Revisions: []mwdump.Revision{
 					{
 						Text:      "== My New Header ==",
 						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -99,7 +99,7 @@ func TestHTMLRender(t *testing.T) {
 		renderer := newHTML(&executor)
 		page := mwdump.Page{
 			Title: "Main Page",
-			Revision: []mwdump.Revision{
+			Revisions: []mwdump.Revision{
 				{
 					Text:      "== My New Header ==",
 					Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -116,7 +116,7 @@ func TestHTMLRender(t *testing.T) {
 	t.Run("Renders Latest Page Revision", func(t *testing.T) {
 		page := mwdump.Page{
 			Title: "Main Page",
-			Revision: []mwdump.Revision{
+			Revisions: []mwdump.Revision{
 				{
 					Text:      "== My New Header ==",
 					Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -219,8 +219,8 @@ func TestHTMLRender(t *testing.T) {
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
 			page := mwdump.Page{
-				Title:    "Main Page",
-				Revision: []mwdump.Revision{{Timestamp: time.Date(2022, 7, 30, 13, 0, 0, 0, time.UTC)}},
+				Title:     "Main Page",
+				Revisions: []mwdump.Revision{{Timestamp: time.Date(2022, 7, 30, 13, 0, 0, 0, time.UTC)}},
 			}
 			executor := test.FakePandocExecutor{Render: tcase.render}
 			renderer := newHTML(&executor)

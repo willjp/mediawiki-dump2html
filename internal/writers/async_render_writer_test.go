@@ -29,7 +29,7 @@ func TestAsyncRenderWriterDumpAll(t *testing.T) {
 		dumper := test.FakePageDumper{}
 		dump := mwdump.XMLDump{
 			Pages: []mwdump.Page{
-				{Title: "file", Revision: []mwdump.Revision{{Text: "== My Header =="}}},
+				{Title: "file", Revisions: []mwdump.Revision{{Text: "== My Header =="}}},
 			},
 		}
 		writer := AsyncRenderWriter{
@@ -46,7 +46,7 @@ func TestAsyncRenderWriterDumpAll(t *testing.T) {
 		dumper := test.FakePageDumper{DumpErrors: []error{ExpectedError}}
 		dump := mwdump.XMLDump{
 			Pages: []mwdump.Page{
-				{Title: "file", Revision: []mwdump.Revision{{Text: "== My Header =="}}},
+				{Title: "file", Revisions: []mwdump.Revision{{Text: "== My Header =="}}},
 			},
 		}
 		writer := AsyncRenderWriter{

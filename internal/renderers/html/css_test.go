@@ -18,7 +18,7 @@ func TestCSSRender(t *testing.T) {
 		pages := []mwdump.Page{
 			{
 				Title: "Main Page",
-				Revision: []mwdump.Revision{
+				Revisions: []mwdump.Revision{
 					{
 						Text:      "== My New Header ==",
 						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -38,7 +38,7 @@ func TestCSSRender(t *testing.T) {
 		pages := []mwdump.Page{
 			{
 				Title: "First Page",
-				Revision: []mwdump.Revision{
+				Revisions: []mwdump.Revision{
 					{
 						Text:      "== First Page ==",
 						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -47,7 +47,7 @@ func TestCSSRender(t *testing.T) {
 			},
 			{
 				Title: "Second Page",
-				Revision: []mwdump.Revision{
+				Revisions: []mwdump.Revision{
 					{
 						Text:      "== Second Page ==",
 						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -106,7 +106,7 @@ func TestCSSRender(t *testing.T) {
 		pages := []mwdump.Page{
 			{
 				Title: "First Page",
-				Revision: []mwdump.Revision{
+				Revisions: []mwdump.Revision{
 					{
 						Text:      "== First Page ==",
 						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
@@ -140,7 +140,7 @@ func TestCSSRender(t *testing.T) {
 		pages := []mwdump.Page{
 			{
 				Title: "First Page",
-				Revision: []mwdump.Revision{
+				Revisions: []mwdump.Revision{
 					{
 						Text:      "== First Page ==",
 						Timestamp: time.Date(2022, time.January, 1, 12, 0, 0, 0, time.UTC),
