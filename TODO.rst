@@ -13,9 +13,6 @@ Bugfixes
 Features
 --------
 
-* `writers.DumpAll()`
-   page rendering could easily be asynchronous
-
 * `renderers.HTML`
   index headers on each page to JSON obj, and write simple javascript search page.
 
