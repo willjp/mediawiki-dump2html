@@ -13,8 +13,8 @@ type PageProducer struct {
 }
 
 func (this *PageProducer) Start() {
+	defer close(this.PageCh)
 	for _, page := range this.XMLDump.Pages {
 		this.PageCh <- page
 	}
-	this.WaitGroup.Done()
 }
