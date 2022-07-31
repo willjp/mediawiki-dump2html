@@ -7,9 +7,11 @@ import (
 
 type FakeRenderWriter struct {
 	DumpAllErrors []error
-	DumpErrors    []error
 	DumpAllCalled bool
-	DumpCalled    bool
+
+	// TODO: deleteme
+	DumpErrors []error
+	DumpCalled bool
 }
 
 func (this *FakeRenderWriter) DumpAll(renderer interfaces.Renderer, dump *mwdump.XMLDump, outDir string) (errs []error) {
@@ -17,6 +19,7 @@ func (this *FakeRenderWriter) DumpAll(renderer interfaces.Renderer, dump *mwdump
 	return this.DumpAllErrors
 }
 
+// TODO: deleteme
 func (this *FakeRenderWriter) Dump(renderer interfaces.Renderer, page *mwdump.Page, outPath string) []error {
 	this.DumpCalled = true
 	return this.DumpErrors
