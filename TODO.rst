@@ -9,6 +9,8 @@ Cleanups
 Bugfixes
 --------
 
+* delete pages not present in dump
+
 
 Features
 --------
