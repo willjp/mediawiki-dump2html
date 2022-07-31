@@ -26,12 +26,22 @@ func samplePage(revDate time.Time, title string) mwdump.Page {
 	}
 }
 
-func TestRenderWriterImplementsInterface(t *testing.T) {
-	var implementsIface = func(iface interfaces.RenderWriter) bool {
-		return true
-	}
-	cmd := RenderWriter{}
-	assert.True(t, implementsIface(&cmd))
+func TestRenderWriterImplementsInterfaces(t *testing.T) {
+	t.Run("Implements RenderWriter", func(t *testing.T) {
+		var implementsIface = func(iface interfaces.RenderWriter) bool {
+			return true
+		}
+		cmd := RenderWriter{}
+		assert.True(t, implementsIface(&cmd))
+	})
+
+	t.Run("Implements PageDumper", func(t *testing.T) {
+		var implementsIface = func(iface interfaces.PageDumper) bool {
+			return true
+		}
+		cmd := RenderWriter{}
+		assert.True(t, implementsIface(&cmd))
+	})
 }
 
 func TestDumpAll(t *testing.T) {
