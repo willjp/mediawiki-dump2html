@@ -41,22 +41,15 @@ func (html *HTML) Filename(pageTitle string) string {
 
 // Hook that runs before dumping all pages. Not necessarily a pure function.
 func (this *HTML) Setup(dump *mwdump.XMLDump, outDir string) (errs []error) {
-	cssRenderer := NewCSS(this.pandocExecutor)
-	css, errs := cssRenderer.Render(dump)
-	if errs != nil {
-		return errs
-	}
-
 	highlightRenderer := NewHighlightCSS(this.pandocExecutor)
 	highlightCss, errs := highlightRenderer.Render()
 	if errs != nil {
 		return errs
 	}
 
-	combinedCss := fmt.Sprintf("%s\n%s", css, highlightCss)
 	cssFile := path.Join(outDir, stylesheetName)
 	log.Log.Infof("Writing: %s\n", cssFile)
-	errs = utils.FileReplace(combinedCss, cssFile)
+	errs = utils.FileReplace(highlightCss, cssFile)
 	return errs
 }
 
