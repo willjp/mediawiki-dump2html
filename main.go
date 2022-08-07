@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"willpittman.net/x/logger"
+	"github.com/willjp/go-logger"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli"
 	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
 )

@@ -5,7 +5,7 @@ package log
 import (
 	"os"
 
-	"willpittman.net/x/logger"
+	"github.com/willjp/go-logger"
 )
 
 var Log logger.Interface
