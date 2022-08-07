@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	stubs "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
+	stubs "github.com/willjp/mediawiki-dump2html/internal/test/stubs"
 )
 
 // tests

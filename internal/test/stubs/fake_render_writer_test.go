@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
 )
 
 func samplePages() []mwdump.Page {

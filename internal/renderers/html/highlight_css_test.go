@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
+	test "github.com/willjp/mediawiki-dump2html/internal/test/stubs"
 )
 
 var ExpectedError = errors.New("Expected")

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
 )
 
 func TestFakeRendererFilename(t *testing.T) {

@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/lithammer/dedent"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/pandoc"
+	"github.com/willjp/mediawiki-dump2html/internal/utils"
 )
 
 // Has methods for conversion, and keeps state used during conversion

@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
 )
 
 func TestRmFileOn(t *testing.T) {

@@ -1,6 +1,6 @@
 package interfaces
 
-import "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+import "github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
 
 // Writes a single page to disk
 type PageDumper interface {

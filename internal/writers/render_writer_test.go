@@ -8,11 +8,11 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/willjp/go-logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
-	stubs "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/log"
+	stubs "github.com/willjp/mediawiki-dump2html/internal/test/stubs"
 )
 
 var ExpectedError = errors.New("Expected")

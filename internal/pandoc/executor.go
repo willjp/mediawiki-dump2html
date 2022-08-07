@@ -3,7 +3,7 @@ package pandoc
 import (
 	"io"
 
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
 )
 
 // Executes a pandoc.Cmd

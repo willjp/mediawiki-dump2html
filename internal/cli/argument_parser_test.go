@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	commands "willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli/commands"
-	html "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
+	commands "github.com/willjp/mediawiki-dump2html/internal/cli/commands"
+	html "github.com/willjp/mediawiki-dump2html/internal/renderers/html"
 )
 
 func TestArgumentParser(t *testing.T) {

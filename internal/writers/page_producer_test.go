@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
 )
 
 func TestPageProducer(t *testing.T) {

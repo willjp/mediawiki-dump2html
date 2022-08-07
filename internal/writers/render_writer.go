@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/afero"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/log"
+	"github.com/willjp/mediawiki-dump2html/internal/utils"
 )
 
 // Writes output from a Renderer to disk

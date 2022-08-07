@@ -4,8 +4,8 @@ import (
 	"path"
 	"sync"
 
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
 )
 
 type PageConsumer struct {

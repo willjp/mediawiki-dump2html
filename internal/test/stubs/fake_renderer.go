@@ -1,6 +1,6 @@
 package test
 
-import "willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+import "github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
 
 type FakeRenderer struct {
 	Output       string

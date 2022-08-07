@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
 )
 
 func TestFakeCmd(t *testing.T) {

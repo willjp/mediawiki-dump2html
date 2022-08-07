@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
 )
 
 // Renders a mediawiki XML dump to various formats (ex. html, rst, ..)

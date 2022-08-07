@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
+	test "github.com/willjp/mediawiki-dump2html/internal/test/stubs"
 )
 
 func TestExecuteSuccess(t *testing.T) {

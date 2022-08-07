@@ -3,10 +3,10 @@ package cli
 import (
 	"os"
 
-	commands "willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli/commands"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	html "willpittman.net/x/mediawiki-to-sphinxdoc/internal/renderers/html"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/writers"
+	commands "github.com/willjp/mediawiki-dump2html/internal/cli/commands"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	html "github.com/willjp/mediawiki-dump2html/internal/renderers/html"
+	"github.com/willjp/mediawiki-dump2html/internal/writers"
 )
 
 // Chooses the interfaces.CliCommand that should be executed based on provided CLI arguments

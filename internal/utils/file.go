@@ -1,6 +1,6 @@
 package utils
 
-import "willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
+import "github.com/willjp/mediawiki-dump2html/internal/appfs"
 
 func FileReplace(contents string, filepath string) (errs []error) {
 	file, err := appfs.AppFs.Create(filepath)

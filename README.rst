@@ -1,39 +1,53 @@
 
-mediawiki-to-sphinxdoc
-======================
+mediawiki-dump2html
+===================
 
-Converts a mediawiki xml dump to a sphinx-doc static-html website.
+Automation around `pandoc` to to converts a mediawiki XML dump to a static html site.
+
+Because you should never not have access to your notes.
+
 
 
 Features
 --------
 
-* searchable
-* support for syntaxhighlighting
-* fast, offline
-* incremental backups
+* much faster than wget, and similar approaches
+* incremental backups (only replace missing, outdated page revisions)
+* syntaxhighlighting preserved
+
 
 
 Requires
 --------
 
-* pandoc
+* go_
+* pandoc_
+
+.. _go: https://go.dev/
+.. _pandoc: https://github.com/jgm/pandoc
+
+
+
+Install
+-------
+
+.. code-block:: bash
+
+    go install github.com/willjp/mediawiki-dump2html@latest
+
+    # append $GOBIN to your $PATH
+    PATH=${PATH}:${GOBIN:=~/go/bin}
+
 
 
 Usage
 -----
 
-First, create an xml dump of your wiki
-
 .. code-block:: bash
 
+   # dump your wiki
    php ${your_wiki}/maintenance/dumpBackup.php --full --quiet > dump.xml
 
+   # generate statichtml
+   mediawiki-dump2html -i dump.xml -o out/
 
-Now convert to statichtml
-
-.. code-block:: bash
-
-   go install willpittman.net/x/mediawiki-to-sphinxdoc@latest
-   php ${your_wiki}/maintenance/dumpBackup.php --full --quiet > dump.xml
-   mediawiki-to-sphinxdoc -i dump.xml -o out/

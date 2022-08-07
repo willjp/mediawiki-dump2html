@@ -1,4 +1,4 @@
-module willpittman.net/x/mediawiki-to-sphinxdoc
+module github.com/willjp/mediawiki-dump2html
 
 go 1.18
 

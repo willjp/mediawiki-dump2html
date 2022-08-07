@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/elements/mwdump"
-	test "willpittman.net/x/mediawiki-to-sphinxdoc/internal/test/stubs"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
+	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
+	test "github.com/willjp/mediawiki-dump2html/internal/test/stubs"
 )
 
 var htmlWhitespaceRx = regexp.MustCompile(`(?m)(^\s+|\n)`)

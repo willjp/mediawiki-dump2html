@@ -4,8 +4,8 @@ import (
 	"io"
 	"sync"
 
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/log"
 )
 
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.

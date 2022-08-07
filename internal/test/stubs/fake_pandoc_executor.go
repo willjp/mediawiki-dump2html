@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
 )
 
 // A FakePandocExecutor that stubs a pandoc execution, and records the provided stdin.

@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/interfaces"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/pandoc"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/utils"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
+	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/pandoc"
+	"github.com/willjp/mediawiki-dump2html/internal/utils"
 )
 
 // Struct with methods to render pandoc's sytnaxhighlighting CSS stylesheet.

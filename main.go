@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/willjp/go-logger"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/cli"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
+	"github.com/willjp/mediawiki-dump2html/internal/cli"
+	"github.com/willjp/mediawiki-dump2html/internal/log"
 )
 
 func main() {

@@ -2,8 +2,8 @@ package utils
 
 import (
 	"github.com/spf13/afero"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/appfs"
-	"willpittman.net/x/mediawiki-to-sphinxdoc/internal/log"
+	"github.com/willjp/mediawiki-dump2html/internal/appfs"
+	"github.com/willjp/mediawiki-dump2html/internal/log"
 )
 
 // file expects a os.File
