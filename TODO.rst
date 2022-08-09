@@ -15,6 +15,9 @@ Bugfixes
 Features
 --------
 
+* option to read from stdin, so can `php maintenance/dumpBackup.php --current --quiet | mediawiki-dump2html -o out/`
+  without wasting disk writes on a tempfile
+
 * `renderers.HTML`
   index headers on each page to JSON obj, and write simple javascript search page.
 

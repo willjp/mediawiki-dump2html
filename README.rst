@@ -46,7 +46,7 @@ Usage
 .. code-block:: bash
 
    # dump your wiki
-   php ${your_wiki}/maintenance/dumpBackup.php --full --quiet > dump.xml
+   php ${your_wiki}/maintenance/dumpBackup.php --current --quiet > dump.xml
 
    # generate statichtml
    mediawiki-dump2html -i dump.xml -o out/
