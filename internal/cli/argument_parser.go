@@ -3,8 +3,10 @@ package cli
 import (
 	"os"
 
+	"github.com/willjp/go-logger"
 	commands "github.com/willjp/mediawiki-dump2html/internal/cli/commands"
 	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
+	"github.com/willjp/mediawiki-dump2html/internal/log"
 	html "github.com/willjp/mediawiki-dump2html/internal/renderers/html"
 	"github.com/willjp/mediawiki-dump2html/internal/writers"
 )
@@ -44,6 +46,8 @@ func (this *ArgumentParser) Parse() interfaces.CliCommand {
 			}
 			opts.OutDir = this.CliArgs[i+2]
 			shift += 1
+		case "-v", "--verbose":
+			log.Log.SetLevel(logger.LvDebug)
 		}
 	}
 	if opts.XMLDump != "" && opts.OutDir != "" {

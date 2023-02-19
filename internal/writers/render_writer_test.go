@@ -198,8 +198,8 @@ func TestDump(t *testing.T) {
 		assert.Equal(t, oldFinfo.ModTime(), finfo.ModTime())
 
 		stubLog := log.Log.(*logger.StubLogger)
-		assert.Equal(t, 1, len(stubLog.InfoMsgs))
-		assert.Equal(t, "Skipping Up To Date: /var/tmp/file.txt", stubLog.InfoMsgs[0])
+		assert.Equal(t, 1, len(stubLog.DebugMsgs))
+		assert.Equal(t, "Skipping Up To Date: /var/tmp/file.txt", stubLog.DebugMsgs[0])
 	})
 
 	t.Run("Removes file if failure during write", func(t *testing.T) {

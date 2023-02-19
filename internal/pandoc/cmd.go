@@ -14,6 +14,7 @@ type Cmd struct {
 	args []string
 }
 
+// Array of command/params passed on CLI
 func (this *Cmd) Args() []string {
 	return this.args
 }
@@ -46,6 +47,7 @@ func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
 	return render, errs
 }
 
+// Builds stdin(Writer), stdout(Reader), stderr(Reader) connected to this pandoc process
 func (this *Cmd) buildPipes() (stdin io.WriteCloser, stdout io.Reader, stderr io.Reader, errs []error) {
 	var err error
 	stdin, err = this.StdinPipe()
@@ -63,6 +65,7 @@ func (this *Cmd) buildPipes() (stdin io.WriteCloser, stdout io.Reader, stderr io
 	return stdin, stdout, stderr, errs
 }
 
+// Pipes `reader` (mediawiki-src) into `writer` (pandoc-stdin)
 func (this *Cmd) writeStdin(writer io.WriteCloser, reader io.Reader, ch chan<- error, wg *sync.WaitGroup) {
 	defer func() {
 		err := writer.Close()
@@ -82,6 +85,7 @@ func (this *Cmd) writeStdin(writer io.WriteCloser, reader io.Reader, ch chan<- e
 	}
 }
 
+// Runs the pandoc process, capturing stdout/stderr
 func (this *Cmd) start(stdout io.Reader, stderr io.Reader) (render string, errs []error) {
 	var err error
 	err = this.Start()
@@ -104,6 +108,7 @@ func (this *Cmd) start(stdout io.Reader, stderr io.Reader) (render string, errs 
 
 	err = this.Wait()
 	if err != nil {
+		log.Log.Debugf("PANDOC ARGS: %s", this.Args())
 		log.Log.Debugf("STDERR:\n%s", errAll)
 		errs = append(errs, err)
 	}

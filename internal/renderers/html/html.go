@@ -8,13 +8,13 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 	"github.com/willjp/mediawiki-dump2html/internal/elements/mwdump"
 	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
 	"github.com/willjp/mediawiki-dump2html/internal/log"
 	"github.com/willjp/mediawiki-dump2html/internal/pandoc"
 	"github.com/willjp/mediawiki-dump2html/internal/utils"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 var validSchemeRx = regexp.MustCompile(`^(http|https|ftp|file|fax|mailto|tel)$`)
@@ -55,7 +55,9 @@ func (this *HTML) Setup(dump *mwdump.XMLDump, outDir string) (errs []error) {
 
 func (this *HTML) Render(page *mwdump.Page) (render string, errs []error) {
 	cmd := this.renderCmd()
-	stdin := strings.NewReader(page.LatestRevision().Text)
+	text := page.LatestRevision().Text
+	log.Log.Debugf("PAGE CONTS (%s):\n%s", page.Title, text)
+	stdin := strings.NewReader(text)
 	raw, errs := this.pandocExecutor.Execute(&cmd, stdin)
 	if errs != nil {
 		return "", errs
@@ -107,9 +109,9 @@ func (this *HTML) adjust(node *html.Node, page *mwdump.Page) (*html.Node, error)
 
 // Adjusts HTML <head>
 //
-//    - Links stylesheet
-//    - Sets Page Title.
-//    - Adds meta 'dateSubmitted' tag (when the rendered page was published in mediawiki)
+//   - Links stylesheet
+//   - Sets Page Title.
+//   - Adds meta 'dateSubmitted' tag (when the rendered page was published in mediawiki)
 func (this *HTML) adjustHeadNode(node *html.Node, page *mwdump.Page) *html.Node {
 	if node.Type != html.ElementNode {
 		return node
@@ -163,7 +165,7 @@ func (this *HTML) adjustHeadNode(node *html.Node, page *mwdump.Page) *html.Node 
 
 // Adjusts HTML Body
 //
-//    - Prepends a <h1> with the page title to the body.
+//   - Prepends a <h1> with the page title to the body.
 func (this *HTML) adjustBodyNode(node *html.Node, page *mwdump.Page) *html.Node {
 	if node.Type != html.ElementNode {
 		return node
@@ -229,8 +231,8 @@ func (this *HTML) adjustHNode(node *html.Node, page *mwdump.Page) *html.Node {
 
 // Modifes `<a href="">` elements, so they point to files we have written to disk.
 //
-//    - files on disk use POSIX compatible characters in filename
-//    - since serving statically without webserver, appends '.html' to filename
+//   - files on disk use POSIX compatible characters in filename
+//   - since serving statically without webserver, appends '.html' to filename
 func (this *HTML) adjustAnchorNode(node *html.Node) error {
 	if node.Type != html.ElementNode {
 		return nil

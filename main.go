@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	log.Log.SetLevel(logger.LvDebug)
+	log.Log.SetLevel(logger.LvInfo)
 	cli := cli.New()
 	cmd := cli.Parse()
 	err := cmd.Call()
