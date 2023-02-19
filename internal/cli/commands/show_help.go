@@ -30,6 +30,9 @@ func (this *ShowHelp) Call() error {
 	  -o --outdir OUTDIR
 	      the directory you'd like to write html files to
 
+	  -v --verbose
+	      use verbose logging
+
 	EXAMPLES:
 	    %s -i dump.xml -o /var/tmp/website/  # convert dump.xml to statichtml in /var/tmp/website
 	`), executable, executable)
