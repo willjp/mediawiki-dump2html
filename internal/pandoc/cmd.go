@@ -2,6 +2,7 @@ package pandoc
 
 import (
 	"io"
+	"os/exec"
 	"sync"
 
 	"github.com/willjp/mediawiki-dump2html/internal/interfaces"
@@ -11,7 +12,8 @@ import (
 // Wraps exec.Cmd and adds methods related to executing a pandoc command.
 type Cmd struct {
 	interfaces.ExecCmd
-	args []string
+	args                []string
+	skipCheckExecutable bool // (test seam) skip checking executable.
 }
 
 // Array of command/params passed on CLI
@@ -21,6 +23,10 @@ func (this *Cmd) Args() []string {
 
 // Executes pandoc on CLI
 func (this *Cmd) Execute(stdin io.Reader) (render string, errs []error) {
+	if !this.skipCheckExecutable {
+		this.checkExecutable()
+	}
+
 	// record goroutine errors
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -88,6 +94,8 @@ func (this *Cmd) writeStdin(writer io.WriteCloser, reader io.Reader, ch chan<- e
 // Runs the pandoc process, capturing stdout/stderr
 func (this *Cmd) start(stdout io.Reader, stderr io.Reader) (render string, errs []error) {
 	var err error
+
+	// run the command
 	err = this.Start()
 	if err != nil {
 		errs = append(errs, err)
@@ -113,4 +121,14 @@ func (this *Cmd) start(stdout io.Reader, stderr io.Reader) (render string, errs 
 		errs = append(errs, err)
 	}
 	return string(outAll), errs
+}
+
+// Panic if executable does not exist
+func (this *Cmd) checkExecutable() {
+	// panic if pandoc not available
+	executablePath := this.Args()[0]
+	_, err := exec.LookPath(executablePath)
+	if err != nil {
+		panic(err)
+	}
 }
